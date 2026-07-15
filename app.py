@@ -145,14 +145,11 @@ async def download(
         marker = os.urandom(4).hex()
         output_tpl = os.path.join(outdir, f"{marker}.%(ext)s")
 
-        base = []
+        base = ["-f", "best/bestvideo+bestaudio"]
         if format == "mp3":
             base += ["-x", "--audio-format", "mp3"]
         else:
-            base += [
-                "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
-                "--merge-output-format", "mp4",
-            ]
+            base += ["--merge-output-format", "mp4"]
         base += ["-o", output_tpl, f"https://www.youtube.com/watch?v={video_id}"]
 
         proc = subprocess.run(ytdl_args(base), capture_output=True, text=True, timeout=300)

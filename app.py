@@ -26,6 +26,7 @@ def clean_url(url: str) -> str:
 
 def ytdl_args(extra: list[str]) -> list[str]:
     args = ["yt-dlp", "--no-warnings", "--no-playlist",
+            "--geo-bypass",
             "--extractor-args", "youtube:player_client=android,web"]
     if COOKIES_ENV:
         cf = os.path.join(tempfile.gettempdir(), "yt_cookies.txt")

@@ -1,15 +1,19 @@
 import os
 import re
 import json
-import subprocess
 import tempfile
 import shutil
 import time
+import logging
 from pathlib import Path
 from fastapi import FastAPI, Query, HTTPException
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from opentube import Video
+import yt_dlp
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("opentube-api")
 
 START_TIME = time.time()
 COOKIES_ENV = os.environ.get("COOKIES", "")
@@ -24,25 +28,26 @@ def clean_url(url: str) -> str:
     return m.group(1) if m else url.strip()
 
 
-def ytdl_args(extra: list[str]) -> list[str]:
-    args = ["yt-dlp", "--no-warnings", "--no-playlist", "--geo-bypass"]
+def ydl_opts() -> dict:
+    opts = {
+        "quiet": True,
+        "no_warnings": True,
+        "noplaylist": True,
+        "geo_bypass": True,
+        "extractor_args": {"youtube": {"player_client": ["android"]}},
+    }
     if COOKIES_ENV:
         cf = os.path.join(tempfile.gettempdir(), "yt_cookies.txt")
         if not os.path.exists(cf):
             with open(cf, "w") as f:
                 f.write(COOKIES_ENV)
-        args += ["--cookies", cf]
-    return args + extra
+        opts["cookiefile"] = cf
+    return opts
 
 
-def run_ytdlp_json(url: str) -> dict:
-    proc = subprocess.run(
-        ytdl_args(["-j", "--no-download", url]),
-        capture_output=True, text=True, timeout=30,
-    )
-    if proc.returncode != 0:
-        raise Exception(proc.stderr.strip())
-    return json.loads(proc.stdout)
+def extract_info(url: str) -> dict:
+    with yt_dlp.YoutubeDL(ydl_opts()) as ydl:
+        return ydl.extract_info(url, download=False)
 
 
 FORMAT_ORDER = {"2160p": 0, "1440p": 1, "1080p": 2, "720p": 3, "480p": 4, "360p": 5, "240p": 6, "144p": 7, "audio": 8}
@@ -79,10 +84,7 @@ async def video_info(url: str = Query(..., description="YouTube video URL")):
         raise HTTPException(status_code=400, detail="Invalid YouTube URL")
 
     try:
-        # yt-dlp for rich metadata + formats
-        raw = run_ytdlp_json(f"https://www.youtube.com/watch?v={video_id}")
-
-        # opentube for structured metadata
+        raw = extract_info(f"https://www.youtube.com/watch?v={video_id}")
         ot = Video(video_id)
         ot_meta = ot.metadata
 
@@ -142,19 +144,25 @@ async def download(
     outdir = tempfile.mkdtemp(prefix="ot_")
     try:
         marker = os.urandom(4).hex()
-        output_tpl = os.path.join(outdir, f"{marker}.%(ext)s")
+        dl_opts = ydl_opts()
+        dl_opts["outtmpl"] = {"default": os.path.join(outdir, f"{marker}.%(ext)s")}
+        dl_opts["quiet"] = True
 
         if format == "mp3":
-            base = ["-f", "bestaudio", "-x", "--audio-format", "mp3"]
+            dl_opts["format"] = "bestaudio/best"
+            dl_opts["postprocessors"] = [{
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "mp3",
+            }]
         else:
-            base = ["-f", "best", "--remux-video", "mp4"]
-        base += ["-o", output_tpl, f"https://www.youtube.com/watch?v={video_id}"]
+            dl_opts["format"] = "bestvideo+bestaudio/best"
+            dl_opts["merge_output_format"] = "mp4"
 
-        proc = subprocess.run(ytdl_args(base), capture_output=True, text=True, timeout=300)
-        if proc.returncode != 0:
-            raise HTTPException(status_code=500, detail=f"Download failed: {proc.stderr.strip()}")
+        watch_url = f"https://www.youtube.com/watch?v={video_id}"
+        with yt_dlp.YoutubeDL(dl_opts) as ydl:
+            ydl.download([watch_url])
 
-        files = list(Path(outdir).iterdir())
+        files = sorted(Path(outdir).iterdir(), key=lambda f: f.stat().st_mtime, reverse=True)
         if not files:
             raise HTTPException(status_code=500, detail="No output file produced")
 

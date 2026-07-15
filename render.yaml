@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: opentube-api
+    runtime: docker
+    region: oregon
+    plan: free
+    envVars:
+      - key: PORT
+        value: "8000"
+      - key: COOKIES
+        sync: false
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 1
+    healthCheckPath: /health

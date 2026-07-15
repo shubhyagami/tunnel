@@ -34,7 +34,7 @@ def ydl_opts() -> dict:
         "no_warnings": True,
         "noplaylist": True,
         "geo_bypass": True,
-        "extractor_args": {"youtube": {"player_client": ["android"]}},
+        "extractor_args": {"youtube": {"player_client": ["android", "web"]}},
     }
     if COOKIES_ENV:
         cf = os.path.join(tempfile.gettempdir(), "yt_cookies.txt")
@@ -74,7 +74,12 @@ async def root():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "uptime": int(time.time() - START_TIME), "version": "1.0.0"}
+    return {
+        "status": "ok",
+        "uptime": int(time.time() - START_TIME),
+        "version": "1.0.0",
+        "ytdlp_version": yt_dlp.version.__version__ if hasattr(yt_dlp, 'version') else str(getattr(yt_dlp, '__version__', 'unknown')),
+    }
 
 
 @app.get("/info")
@@ -144,9 +149,16 @@ async def download(
     outdir = tempfile.mkdtemp(prefix="ot_")
     try:
         marker = os.urandom(4).hex()
+
+        # Check available formats first
+        info = extract_info(f"https://www.youtube.com/watch?v={video_id}")
+        fmt_ids = [f.get("format_id") for f in info.get("formats", [])]
+        fmt_summary = [f"{f.get('format_id')}: {f.get('ext')} {f.get('resolution','audio')} vcodec={f.get('vcodec','none')} acodec={f.get('acodec','none')}" for f in info.get("formats", [])]
+        logger.info(f"Available formats for {video_id}: {len(fmt_ids)} formats")
+        logger.info(f"Formats: {fmt_summary[:5]}...")  # log first 5
+
         dl_opts = ydl_opts()
-        dl_opts["outtmpl"] = {"default": os.path.join(outdir, f"{marker}.%(ext)s")}
-        dl_opts["quiet"] = True
+        dl_opts["outtmpl"] = os.path.join(outdir, f"{marker}.%(ext)s")
 
         if format == "mp3":
             dl_opts["format"] = "bestaudio/best"
@@ -160,7 +172,7 @@ async def download(
 
         watch_url = f"https://www.youtube.com/watch?v={video_id}"
         with yt_dlp.YoutubeDL(dl_opts) as ydl:
-            ydl.download([watch_url])
+            ydl.extract_info(watch_url, download=True)
 
         files = sorted(Path(outdir).iterdir(), key=lambda f: f.stat().st_mtime, reverse=True)
         if not files:

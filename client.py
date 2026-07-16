@@ -15,7 +15,7 @@ logger = logging.getLogger("tunnel-client")
 
 async def main():
     parser = argparse.ArgumentParser(description="Port Tunnel Client - expose localhost to the internet")
-    parser.add_argument("--server", required=True, help="Tunnel server URL (e.g. https://tunnel.onrender.com)")
+    parser.add_argument("--server", required=True, help="Tunnel server URL (e.g. https://tunnel-2sgh.onrender.com)")
     parser.add_argument("--client-id", required=True, help="Unique name for this tunnel")
     parser.add_argument("--port", type=int, default=80, help="Local port to forward to (default: 80)")
     args = parser.parse_args()

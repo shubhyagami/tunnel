@@ -50,7 +50,7 @@ class TunnelGUI:
         conn.pack(fill=tk.X, pady=(0, 8))
 
         ttk.Label(conn, text="Server:").grid(row=0, column=0, sticky=tk.W, padx=(0, 6))
-        self.server_var = tk.StringVar(value="https://port-tunnel.onrender.com")
+        self.server_var = tk.StringVar(value="https://tunnel-2sgh.onrender.com")
         ttk.Entry(conn, textvariable=self.server_var).grid(row=0, column=1, sticky=tk.EW, padx=(0, 12))
 
         ttk.Label(conn, text="Client ID:").grid(row=1, column=0, sticky=tk.W, padx=(0, 6), pady=(4, 0))

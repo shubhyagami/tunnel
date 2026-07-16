@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: port-tunnel
+    runtime: docker
+    repo: https://github.com/shubhyagami/youtubeAPI
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 8000

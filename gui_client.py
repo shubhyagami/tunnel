@@ -192,11 +192,12 @@ class TunnelGUI:
         path = meta["path"]
         headers = {k: v for k, v in meta.get("headers", {}).items()
                    if k.lower() not in ("host", "transfer-encoding", "content-encoding", "content-length")}
+        auth_hdrs = {k: v for k, v in headers.items() if k.lower() in ("cookie", "guacamole-token", "authorization", "x-xsrf-token")}
         query = meta.get("query", {})
         target = f"http://localhost:{port}{path}"
         if query:
             target += "?" + urlencode(query)
-        logger.info(f"  {method} {target}")
+        logger.info(f"  {method} {target}  auth={auth_hdrs}")
 
         try:
             async with session.request(method, target, headers=headers, data=body,
@@ -207,7 +208,10 @@ class TunnelGUI:
                       if k.lower() not in ("transfer-encoding", "content-encoding", "content-length")}
                 await ws.send_bytes(encode_frame(TYPE_RESPONSE, rid,
                                                  {"status": resp.status, "headers": rh}, resp_body))
-                logger.info(f"    -> {resp.status} ({len(resp_body)} bytes)")
+                if resp.status >= 400:
+                    logger.warning(f"    -> {resp.status} ({len(resp_body)} bytes) BODY={resp_body[:500]}")
+                else:
+                    logger.info(f"    -> {resp.status} ({len(resp_body)} bytes)")
         except Exception as e:
             logger.error(f"  Error: {e}")
             await ws.send_bytes(encode_frame(TYPE_RESPONSE, rid,

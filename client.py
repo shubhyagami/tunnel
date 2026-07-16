@@ -44,7 +44,8 @@ async def handle_request(session: aiohttp.ClientSession, ws, frame: bytes, port:
     if query:
         target_url += "?" + urlencode(query)
 
-    logger.info(f"  {method} {target_url}")
+    auth_headers = {k: v for k, v in headers.items() if k.lower() in ("cookie", "guacamole-token", "authorization", "x-xsrf-token")}
+    logger.info(f"  {method} {target_url}  auth={auth_headers}")
 
     try:
         async with session.request(method, target_url, headers=headers, data=body,
@@ -56,7 +57,10 @@ async def handle_request(session: aiohttp.ClientSession, ws, frame: bytes, port:
             await ws.send_bytes(encode_frame(TYPE_RESPONSE, rid,
                                              {"status": resp.status, "headers": resp_headers},
                                              resp_body))
-            logger.info(f"    -> {resp.status} ({len(resp_body)} bytes)")
+            if resp.status >= 400:
+                logger.warning(f"    -> {resp.status} ({len(resp_body)} bytes) BODY={resp_body[:500]}")
+            else:
+                logger.info(f"    -> {resp.status} ({len(resp_body)} bytes)")
     except Exception as e:
         logger.error(f"  Error: {e}")
         await ws.send_bytes(encode_frame(TYPE_RESPONSE, rid,

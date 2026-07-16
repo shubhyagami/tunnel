@@ -44,8 +44,7 @@ async def handle_request(session: aiohttp.ClientSession, ws, frame: bytes, port:
     if query:
         target_url += "?" + urlencode(query)
 
-    auth_headers = {k: v for k, v in headers.items() if k.lower() in ("cookie", "guacamole-token", "authorization", "x-xsrf-token")}
-    logger.info(f"  {method} {target_url}  auth={auth_headers}")
+    logger.info(f"  {method} {target_url}  ALL_HEADERS={dict(headers)}")
 
     try:
         async with session.request(method, target_url, headers=headers, data=body,

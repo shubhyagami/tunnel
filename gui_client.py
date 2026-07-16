@@ -192,12 +192,11 @@ class TunnelGUI:
         path = meta["path"]
         headers = {k: v for k, v in meta.get("headers", {}).items()
                    if k.lower() not in ("host", "transfer-encoding", "content-encoding", "content-length")}
-        auth_hdrs = {k: v for k, v in headers.items() if k.lower() in ("cookie", "guacamole-token", "authorization", "x-xsrf-token")}
         query = meta.get("query", {})
         target = f"http://localhost:{port}{path}"
         if query:
             target += "?" + urlencode(query)
-        logger.info(f"  {method} {target}  auth={auth_hdrs}")
+        logger.info(f"  {method} {target}  HEADERS={dict(list(headers.items())[:20])}")
 
         try:
             async with session.request(method, target, headers=headers, data=body,

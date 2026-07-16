@@ -1,9 +1,0 @@
-node_modules/
-.env
-__pycache__/
-*.pyc
-*.pyo
-*.mp4
-*.mp3
-/data/
-.video_data.json

@@ -4,40 +4,51 @@ from tkinter import ttk, scrolledtext
 import threading
 import asyncio
 import json
-import base64
+import struct
 import queue
 import logging
 import sys
-import webbrowser
 from urllib.parse import urlencode
 
 import aiohttp
 
+TYPE_REQUEST = 0
+TYPE_RESPONSE = 1
+
+def encode_frame(msg_type: int, rid: str, metadata: dict, body: bytes = b"") -> bytes:
+    meta = json.dumps(metadata).encode()
+    payload = bytes([msg_type]) + rid.encode() + struct.pack("!I", len(meta)) + meta + body
+    return struct.pack("!I", len(payload)) + payload
+
+def decode_frame(frame: bytes):
+    msg_type = frame[4]
+    rid = frame[5:17].decode()
+    jlen = struct.unpack("!I", frame[17:21])[0]
+    meta = json.loads(frame[21:21 + jlen])
+    body = frame[21 + jlen:]
+    return msg_type, rid, meta, body
+
 
 class QueueHandler(logging.Handler):
-    def __init__(self, log_queue: queue.Queue):
+    def __init__(self, q: queue.Queue):
         super().__init__()
-        self.log_queue = log_queue
-
+        self.q = q
     def emit(self, record):
-        self.log_queue.put(self.format(record))
+        self.q.put(self.format(record))
 
 
 class TunnelGUI:
     def __init__(self):
         self.root = tk.Tk()
-        self.root.title("Port Tunnel Client")
-        self.root.geometry("700x500")
-        self.root.minsize(500, 350)
-
+        self.root.title("Port Tunnel")
+        self.root.geometry("720x520")
+        self.root.minsize(520, 360)
         self.log_queue = queue.Queue()
         self.stop_event = threading.Event()
         self.tunnel_thread: threading.Thread | None = None
         self.running = False
-
         self._build_ui()
         self._setup_logging()
-
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)
         self.poll_log_queue()
 
@@ -45,7 +56,6 @@ class TunnelGUI:
         main = ttk.Frame(self.root, padding=12)
         main.pack(fill=tk.BOTH, expand=True)
 
-        # --- Connection frame ---
         conn = ttk.LabelFrame(main, text="Connection", padding=10)
         conn.pack(fill=tk.X, pady=(0, 8))
 
@@ -59,43 +69,39 @@ class TunnelGUI:
 
         ttk.Label(conn, text="Local Port:").grid(row=2, column=0, sticky=tk.W, padx=(0, 6), pady=(4, 0))
         self.port_var = tk.IntVar(value=3000)
-        port_spin = ttk.Spinbox(conn, from_=1, to=65535, textvariable=self.port_var, width=8)
-        port_spin.grid(row=2, column=1, sticky=tk.W, padx=(0, 12), pady=(4, 0))
-
+        ttk.Spinbox(conn, from_=1, to=65535, textvariable=self.port_var, width=8
+                    ).grid(row=2, column=1, sticky=tk.W, padx=(0, 12), pady=(4, 0))
         conn.columnconfigure(1, weight=1)
 
-        # --- Controls ---
         ctrl = ttk.Frame(main)
         ctrl.pack(fill=tk.X, pady=(0, 8))
 
         self.start_btn = ttk.Button(ctrl, text="Start Tunnel", command=self.start_tunnel)
         self.start_btn.pack(side=tk.LEFT, padx=(0, 6))
-
         self.stop_btn = ttk.Button(ctrl, text="Stop", command=self.stop_tunnel, state=tk.DISABLED)
-        self.stop_btn.pack(side=tk.LEFT, padx=(0, 6))
+        self.stop_btn.pack(side=tk.LEFT)
 
-        self.tunnel_url_var = tk.StringVar()
-        self.url_entry = ttk.Entry(ctrl, textvariable=self.tunnel_url_var, state="readonly")
-        self.url_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(6, 0))
+        self.url_var = tk.StringVar()
+        url_e = ttk.Entry(ctrl, textvariable=self.url_var, state="readonly")
+        url_e.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(12, 0))
 
-        # --- Log ---
         log_frame = ttk.LabelFrame(main, text="Log", padding=6)
         log_frame.pack(fill=tk.BOTH, expand=True)
 
-        self.log_area = scrolledtext.ScrolledText(log_frame, state=tk.DISABLED, wrap=tk.WORD,
-                                                   font=("Consolas", 9), bg="#1e1e1e", fg="#d4d4d4",
-                                                   insertbackground="white")
-        self.log_area.pack(fill=tk.BOTH, expand=True)
+        self.log = scrolledtext.ScrolledText(log_frame, state=tk.DISABLED, wrap=tk.WORD,
+                                              font=("Consolas", 9), bg="#1e1e1e", fg="#d4d4d4",
+                                              insertbackground="white")
+        self.log.pack(fill=tk.BOTH, expand=True)
 
-        # --- Status bar ---
         self.status_var = tk.StringVar(value="Ready")
-        status_bar = ttk.Label(self.root, textvariable=self.status_var, relief=tk.SUNKEN, anchor=tk.W, padding=(6, 2))
-        status_bar.pack(fill=tk.X)
+        bar = ttk.Label(self.root, textvariable=self.status_var, relief=tk.SUNKEN,
+                        anchor=tk.W, padding=(6, 2))
+        bar.pack(fill=tk.X)
 
     def _setup_logging(self):
-        handler = QueueHandler(self.log_queue)
-        handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s", datefmt="%H:%M:%S"))
-        logging.getLogger("tunnel-client").addHandler(handler)
+        h = QueueHandler(self.log_queue)
+        h.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s", datefmt="%H:%M:%S"))
+        logging.getLogger("tunnel-client").addHandler(h)
         logging.getLogger("tunnel-client").setLevel(logging.INFO)
 
     def _log(self, msg: str):
@@ -103,59 +109,53 @@ class TunnelGUI:
 
     def poll_log_queue(self):
         while not self.log_queue.empty():
-            msg = self.log_queue.get_nowait()
-            self.log_area.configure(state=tk.NORMAL)
-            self.log_area.insert(tk.END, msg + "\n")
-            self.log_area.see(tk.END)
-            self.log_area.configure(state=tk.DISABLED)
+            self.log.configure(state=tk.NORMAL)
+            self.log.insert(tk.END, self.log_queue.get_nowait() + "\n")
+            self.log.see(tk.END)
+            self.log.configure(state=tk.DISABLED)
         self.root.after(100, self.poll_log_queue)
 
     def start_tunnel(self):
-        server = self.server_var.get().strip()
+        srv = self.server_var.get().strip()
         cid = self.cid_var.get().strip()
         port = self.port_var.get()
-
-        if not server or not cid:
-            self._log("ERROR: Server URL and Client ID are required")
+        if not srv or not cid:
+            self._log("ERROR: Server URL and Client ID required")
             return
-
         self.running = True
         self.start_btn.configure(state=tk.DISABLED)
         self.stop_btn.configure(state=tk.NORMAL)
         self.status_var.set("Connecting...")
-        self.tunnel_url_var.set(f"{server.rstrip('/')}/{cid}/")
+        self.url_var.set(f"{srv.rstrip('/')}/{cid}/")
         self.stop_event.clear()
-
-        self.tunnel_thread = threading.Thread(target=self._run_async_client,
-                                              args=(server, cid, port), daemon=True)
+        self.tunnel_thread = threading.Thread(target=self._run, args=(srv, cid, port), daemon=True)
         self.tunnel_thread.start()
 
     def stop_tunnel(self):
         self.stop_event.set()
         self.status_var.set("Stopping...")
 
-    def _run_async_client(self, server: str, cid: str, port: int):
+    def _run(self, server: str, cid: str, port: int):
         try:
-            asyncio.run(self._tunnel_client(server, cid, port))
+            asyncio.run(self._client(server, cid, port))
         except Exception as e:
             self._log(f"FATAL: {e}")
         finally:
-            self.root.after(0, self._on_tunnel_stopped)
+            self.root.after(0, self._stopped)
 
-    def _on_tunnel_stopped(self):
+    def _stopped(self):
         self.running = False
         self.start_btn.configure(state=tk.NORMAL)
         self.stop_btn.configure(state=tk.DISABLED)
         self.status_var.set("Disconnected")
 
-    async def _tunnel_client(self, server: str, cid: str, port: int):
+    async def _client(self, server: str, cid: str, port: int):
         logger = logging.getLogger("tunnel-client")
         server = server.rstrip("/")
         ws_url = server.replace("http://", "ws://").replace("https://", "wss://")
         ws_url += f"/ws?{urlencode({'client_id': cid, 'port': port})}"
-
         logger.info(f"Connecting to {ws_url}")
-        logger.info(f"Tunnel URL: {server}/{cid}/")
+        logger.info(f"Tunnel: http://localhost:{port} -> {server}/{cid}/")
 
         async with aiohttp.ClientSession() as session:
             while not self.stop_event.is_set():
@@ -167,10 +167,8 @@ class TunnelGUI:
                             if self.stop_event.is_set():
                                 await ws.close()
                                 break
-                            if msg.type == aiohttp.WSMsgType.TEXT:
-                                data = json.loads(msg.data)
-                                if data.get("type") == "request":
-                                    await self._handle_request(session, ws, data, port, logger)
+                            if msg.type == aiohttp.WSMsgType.BINARY:
+                                await self._handle(session, ws, msg.data, port, logger)
                             elif msg.type == aiohttp.WSMsgType.ERROR:
                                 logger.error(f"WebSocket error: {ws.exception()}")
                                 break
@@ -180,61 +178,46 @@ class TunnelGUI:
                     if self.stop_event.is_set():
                         break
                     logger.error(f"Connection error: {e}")
-                    logger.info(f"Reconnecting in 3s...")
+                    logger.info("Reconnecting in 3s...")
                     self.root.after(0, lambda: self.status_var.set("Reconnecting..."))
                     await asyncio.sleep(3)
 
-    async def _handle_request(self, session: aiohttp.ClientSession, ws, data: dict, local_port: int, logger: logging.Logger):
-        rid = data["request_id"]
-        method = data["method"]
-        path = data["path"]
-        headers = {k: v for k, v in data.get("headers", {}).items()
+    async def _handle(self, session, ws, frame: bytes, port: int, logger):
+        try:
+            _, rid, meta, body = decode_frame(frame)
+        except Exception as e:
+            logger.error(f"Bad frame: {e}")
+            return
+        method = meta["method"]
+        path = meta["path"]
+        headers = {k: v for k, v in meta.get("headers", {}).items()
                    if k.lower() not in ("host", "transfer-encoding", "content-encoding", "content-length")}
-        body_b64 = data.get("body", "")
-        body = base64.b64decode(body_b64) if body_b64 else b""
-
-        target_url = f"http://localhost:{local_port}{path}"
-        query = data.get("query", {})
+        query = meta.get("query", {})
+        target = f"http://localhost:{port}{path}"
         if query:
-            target_url += "?" + urlencode(query)
-
-        logger.info(f"  {method} {target_url}")
+            target += "?" + urlencode(query)
+        logger.info(f"  {method} {target}")
 
         try:
-            async with session.request(method, target_url, headers=headers, data=body,
+            async with session.request(method, target, headers=headers, data=body,
                                         timeout=aiohttp.ClientTimeout(total=30),
                                         allow_redirects=False) as resp:
                 resp_body = await resp.read()
-                resp_headers = {k: v for k, v in resp.headers.items()
-                                if k.lower() not in ("transfer-encoding", "content-encoding", "content-length")}
-
-                await ws.send_json({
-                    "type": "response",
-                    "request_id": rid,
-                    "status_code": resp.status,
-                    "headers": resp_headers,
-                    "body": base64.b64encode(resp_body).decode() if resp_body else "",
-                })
-                logger.info(f"    -> {resp.status}")
+                rh = {k: v for k, v in resp.headers.items()
+                      if k.lower() not in ("transfer-encoding", "content-encoding", "content-length")}
+                await ws.send_bytes(encode_frame(TYPE_RESPONSE, rid,
+                                                 {"status": resp.status, "headers": rh}, resp_body))
+                logger.info(f"    -> {resp.status} ({len(resp_body)} bytes)")
         except Exception as e:
             logger.error(f"  Error: {e}")
-            await ws.send_json({
-                "type": "response",
-                "request_id": rid,
-                "status_code": 502,
-                "headers": {"Content-Type": "text/plain"},
-                "body": base64.b64encode(str(e).encode()).decode(),
-            })
+            await ws.send_bytes(encode_frame(TYPE_RESPONSE, rid,
+                                             {"status": 502, "headers": {"Content-Type": "text/plain"}},
+                                             str(e).encode()))
 
     def _on_close(self):
         self.stop_event.set()
         self.root.destroy()
 
 
-def main():
-    app = TunnelGUI()
-    app.root.mainloop()
-
-
 if __name__ == "__main__":
-    main()
+    TunnelGUI().root.mainloop()

@@ -18,15 +18,16 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: |
-          pip install pyinstaller aiohttp
+        run: pip install pyinstaller aiohttp
 
-      - name: Build EXE
-        run: |
-          pyinstaller --onefile --name tunnel-client --hidden-import aiohttp gui_client.py
+      - name: Build GUI client EXE
+        run: pyinstaller --onefile --name tunnel-client --hidden-import aiohttp --hidden-import queue --hidden-import urllib.parse gui_client.py
 
-      - name: Upload artifact
+      - name: Build CLI client EXE
+        run: pyinstaller --onefile --name tunnel-cli --hidden-import aiohttp client.py
+
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: tunnel-client-windows
-          path: dist/tunnel-client.exe
+          path: dist/*.exe

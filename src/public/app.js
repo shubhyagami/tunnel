@@ -22,7 +22,7 @@ ws.onmessage = (event) => {
         statusDot.classList.add('online');
     } else if (data.type === 'log') {
         requestCount++;
-        reqCountEl.textContent = requestCount;
+        reqCountEl.textContent = requestCount.toString().padStart(4, '0');
         appendLog(data.log);
     }
 };
@@ -61,5 +61,5 @@ function appendLog(log) {
 clearBtn.addEventListener('click', () => {
     logsBody.innerHTML = '';
     requestCount = 0;
-    reqCountEl.textContent = '0';
+    reqCountEl.textContent = '0000';
 });

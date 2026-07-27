@@ -3,43 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tunnel Dashboard</title>
+    <title>TVA Proxy Terminal</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class="crt-overlay"></div>
+    <div class="scanlines"></div>
+    
     <div class="dashboard-container">
-        <header class="glass-panel">
+        <header class="tva-panel">
             <div class="logo">
-                <div class="logo-icon"></div>
-                <h1>Tunnel<span>X</span></h1>
+                <div class="logo-icon">TVA</div>
+                <h1>TIME VARIANCE AUTHORITY<br><span>PROXY TERMINAL v1.4</span></h1>
             </div>
-            <div class="status-container">
-                <div class="status-dot"></div>
-                <span id="tunnel-url">Waiting for connection...</span>
-            </div>
-            <div class="metrics">
+            
+            <div class="status-panel">
+                <div class="status-container">
+                    <div class="status-dot"></div>
+                    <span id="tunnel-url">AWAITING TEMPORAL CONNECTION...</span>
+                </div>
                 <div class="metric">
-                    <span class="label">Requests</span>
-                    <span class="value" id="req-count">0</span>
+                    <span class="label">TIMELINE EVENTS</span>
+                    <span class="value" id="req-count">0000</span>
                 </div>
             </div>
         </header>
 
-        <main class="glass-panel main-content">
+        <main class="tva-panel main-content">
             <div class="table-header">
-                <h2>Traffic Logs</h2>
-                <button id="clear-logs">Clear</button>
+                <h2>INCOMING TRAFFIC LOG</h2>
+                <button id="clear-logs">[ PURGE LOGS ]</button>
             </div>
             <div class="table-container">
                 <table id="logs-table">
                     <thead>
                         <tr>
-                            <th>Time</th>
-                            <th>Method</th>
-                            <th>Path</th>
-                            <th>Status</th>
-                            <th>Duration</th>
+                            <th>TIMESTAMP</th>
+                            <th>PROTOCOL</th>
+                            <th>VECTOR PATH</th>
+                            <th>STATUS CODE</th>
+                            <th>DURATION</th>
                         </tr>
                     </thead>
                     <tbody id="logs-body">

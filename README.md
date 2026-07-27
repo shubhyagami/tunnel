@@ -47,8 +47,7 @@ To connect your local computer to your new production server, run the client wit
 
 ```bash
 # Windows PowerShell
-$env:SERVER_URL="wss://tunnel-app-xyz.onrender.com"
-node src/client.js --port 3000 --subdomain my-app
+$env:SERVER_URL="wss://tunnel-app-xyz.onrender.com"; node src/client.js --port 3000 --subdomain my-app
 ```
 
 *(For Mac/Linux):*

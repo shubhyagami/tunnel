@@ -92,6 +92,8 @@ function connectControl() {
 
             } else if (msg.type === 'new_request' && msg.id) {
                 handleNewRequest(msg);
+            } else if (msg.type === 'new_ws_request' && msg.id) {
+                handleNewWsRequest(msg);
             }
         } catch (e) {
             console.error('Invalid message from control server', data.toString());
@@ -248,5 +250,97 @@ function handleNewRequest(reqMeta: any) {
     
     dataWs.on('error', err => {
         console.error(`[${connectionId}] Data WS error:`, err.message);
+    });
+}
+
+function handleNewWsRequest(reqMeta: any) {
+    const connectionId = reqMeta.id;
+    const startTime = Date.now();
+    
+    console.log(`--> [WS] ${reqMeta.url}`);
+    
+    const dataWs = new WebSocket(`${SERVER_URL}/?type=data&id=${connectionId}`);
+    
+    dataWs.on('open', () => {
+        const headers = { ...reqMeta.headers };
+        delete headers.host;
+
+        const options: http.RequestOptions = {
+            hostname: 'localhost',
+            port: localPort,
+            path: reqMeta.url,
+            method: 'GET',
+            headers: headers
+        };
+
+        const localReq = http.request(options);
+        
+        localReq.on('upgrade', (localRes, localSocket, localHead) => {
+            const duration = Date.now() - startTime;
+            console.log(`<-- [WS] 101 ${reqMeta.url} (${duration}ms)`);
+            
+            // Reconstruct the raw 101 Switching Protocols HTTP response
+            let rawHeaders = `HTTP/${localRes.httpVersion} ${localRes.statusCode} ${localRes.statusMessage || 'Switching Protocols'}\r\n`;
+            for (let i = 0; i < localRes.rawHeaders.length; i += 2) {
+                rawHeaders += `${localRes.rawHeaders[i]}: ${localRes.rawHeaders[i+1]}\r\n`;
+            }
+            rawHeaders += '\r\n';
+            
+            // Send the HTTP response headers back to the browser via the proxy
+            dataWs.send(Buffer.from(rawHeaders), { binary: true });
+            
+            if (localHead && localHead.length > 0) {
+                dataWs.send(localHead, { binary: true });
+            }
+
+            // Pipe bi-directional raw TCP data
+            localSocket.on('data', chunk => {
+                if (dataWs.readyState === WebSocket.OPEN) {
+                    dataWs.send(chunk, { binary: true });
+                }
+            });
+            
+            dataWs.on('message', (data, isBinary) => {
+                localSocket.write(data as Buffer);
+            });
+            
+            localSocket.on('close', () => dataWs.close());
+            localSocket.on('error', () => dataWs.close());
+            dataWs.on('close', () => localSocket.destroy());
+            dataWs.on('error', () => localSocket.destroy());
+        });
+        
+        localReq.on('response', (localRes) => {
+            // Local server rejected the WebSocket upgrade and responded with normal HTTP
+            const duration = Date.now() - startTime;
+            console.log(`<-- [WS REJECTED] ${localRes.statusCode} ${reqMeta.url} (${duration}ms)`);
+            
+            let rawHeaders = `HTTP/${localRes.httpVersion} ${localRes.statusCode} ${localRes.statusMessage || ''}\r\n`;
+            for (let i = 0; i < localRes.rawHeaders.length; i += 2) {
+                rawHeaders += `${localRes.rawHeaders[i]}: ${localRes.rawHeaders[i+1]}\r\n`;
+            }
+            rawHeaders += '\r\n';
+            
+            dataWs.send(Buffer.from(rawHeaders), { binary: true });
+            
+            localRes.on('data', chunk => {
+                if (dataWs.readyState === WebSocket.OPEN) {
+                    dataWs.send(chunk, { binary: true });
+                }
+            });
+            
+            localRes.on('end', () => dataWs.close());
+        });
+
+        localReq.on('error', (err) => {
+            console.log(`<-- [WS ERROR] ${reqMeta.url} [Local Error: ${err.message}]`);
+            dataWs.close();
+        });
+
+        localReq.end();
+    });
+    
+    dataWs.on('error', err => {
+        console.error(`[${connectionId}] WS Data error:`, err.message);
     });
 }

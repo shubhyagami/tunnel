@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tunnel Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="glass-panel">
+            <div class="logo">
+                <div class="logo-icon"></div>
+                <h1>Tunnel<span>X</span></h1>
+            </div>
+            <div class="status-container">
+                <div class="status-dot"></div>
+                <span id="tunnel-url">Waiting for connection...</span>
+            </div>
+            <div class="metrics">
+                <div class="metric">
+                    <span class="label">Requests</span>
+                    <span class="value" id="req-count">0</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="glass-panel main-content">
+            <div class="table-header">
+                <h2>Traffic Logs</h2>
+                <button id="clear-logs">Clear</button>
+            </div>
+            <div class="table-container">
+                <table id="logs-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Method</th>
+                            <th>Path</th>
+                            <th>Status</th>
+                            <th>Duration</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logs-body">
+                        <!-- Logs injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

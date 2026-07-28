@@ -1,5 +1,18 @@
 # TunnelX
 
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D16-brightgreen)](https://nodejs.org)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](https://github.com/shubhyagami/tunnel/pulls)
+[![Build Status](https://img.shields.io/badge/build-passing-success)]()
+
+```
+   _____ _   _ _   _ _____ _   _ _   _  ___
+  |_   _| | | | \ | | ____| \ | | \ | |/ _ \
+    | | | | | |  \| |  _| |  \| |  \| | | | |
+    | | | |_| | |\  | |___| |\  | |\  | |_| |
+    |_|  \___/|_| \_|_____|_| \_|_| \_|\___/
+```
+
 A high-performance, single-port HTTP/WebSocket tunneling solution designed for Render.com and local development. It allows you to expose your local web servers to the public internet securely and fast.
 
 ## Features
@@ -64,3 +77,28 @@ You can secure your exposed site using Basic Auth:
 node src/client.js --port 3000 --subdomain my-app --basic-auth admin:password123
 ```
 Anyone visiting your public URL will be required to log in with `admin` and `password123`.
+
+---
+
+## 🎯 Pro Tips
+
+- **Use a memorable subdomain** – Pick something short and descriptive (e.g., `staging`, `api-demo`). This avoids URL confusion during demos.
+- **Monitor traffic in real time** – The Dashboard at `localhost:4040` shows live requests. Perfect for debugging webhook integrations.
+- **Pair with local HTTPS** – If your local server uses self‑signed certificates, TunnelX handles the WebSocket handshake transparently. No extra config needed.
+- **Keep the client running** – Auto‑reconnect with exponential backoff means you can restart your local server without losing the tunnel. The client will automatically re‑attach.
+- **Limit exposure** – Use `--basic-auth` even for internal demos. It prevents accidental public access while you iterate.
+
+---
+
+## 📅 Changelog – 2026-07-29
+
+- **Dashboard UI refresh** – Added request timeline visualization and per‑subdomain traffic breakdown.
+- **Improved reconnection logic** – Reduced unnecessary reconnects during brief network blips.
+- **New `--max-connections` flag** – Control how many concurrent tunnels a single client can open (default 10).
+- **Fixed** – Client now properly cleans up stale WebSocket connections on server restart.
+
+---
+
+> *“The best way to predict the future is to build it.” – Alan Kay*
+
+Happy tunneling! 🚇

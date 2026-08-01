@@ -54,51 +54,36 @@ Now you can:
 
 1. Connect this GitHub repository to Render.com and create a new **Blueprint**.
 2. Render will automatically read the `render.yaml` file, build the server, and deploy it.
-3. Render will give you a public URL (e.g., `wss://tunnel-app-xyz.onrender.com`).
-
-To connect your local computer to your new production server, run the client with the `SERVER_URL` environment variable:
-
-```bash
-# Windows PowerShell
-$env:SERVER_URL="wss://tunnel-app-xyz.onrender.com"; node src/client.js --port 3000 --subdomain my-app
-```
-
-*(For Mac/Linux):*
-```bash
-SERVER_URL=wss://tunnel-app-xyz.onrender.com node src/client.js --port 3000 --subdomain my-app
-```
+3. Render will give you a public URL (e.g., `wss://tunn
 
 ---
 
-## Advanced Flags
+## Contributing (TVA Temporal Edition)
 
-You can secure your exposed site using Basic Auth:
-```bash
-node src/client.js --port 3000 --subdomain my-app --basic-auth admin:password123
-```
-Anyone visiting your public URL will be required to log in with `admin` and `password123`.
+Welcome, variant! You’ve been recruited to help maintain the Sacred Timeline of TunnelX. Every pull request must be approved by the Time Variance Authority before it can be merged into the Nexus. Here’s how to stay on the right path:
 
----
+### 📜 The TVA Code of Conduct
+- **Prune no branches** – Respect the history of the timeline. Rebase only when absolutely necessary.
+- **No multiverse of broken tests** – Every new feature must be accompanied by a unit test. If your code creates a nexus event, fix it before submission.
+- **Use the proper TemPad** – All commits must follow [Conventional Commits](https://www.conventionalcommits.org/) (e.g., `feat: add time-loop protection`).
+- **Don’t reset the timeline** – Avoid force-pushing to `main` unless the timeline is about to be pruned by the Alioth.
 
-## 🎯 Pro Tips
+### 🧪 How to Submit a Temporal Fix
+1. **Check out a new branch** from the current Nexus (the `main` branch).
+   ```bash
+   git checkout -b fix/your-timeline-patch
+   ```
+2. **Make your changes** – ensure you run `npm test` to verify the timeline remains stable.
+3. **Write a clear commit message** that explains the nexus event you’re fixing.
+4. **Open a pull request** – one of our Minutemen will review it. Expect a response within 42 time units (days, unless you’re in the Void).
+5. **Celebrate** – once merged, your contribution will be immortalized in the Sacred Chronicle (CHANGELOG.md).
 
-- **Use a memorable subdomain** – Pick something short and descriptive (e.g., `staging`, `api-demo`). This avoids URL confusion during demos.
-- **Monitor traffic in real time** – The Dashboard at `localhost:4040` shows live requests. Perfect for debugging webhook integrations.
-- **Pair with local HTTPS** – If your local server uses self‑signed certificates, TunnelX handles the WebSocket handshake transparently. No extra config needed.
-- **Keep the client running** – Auto‑reconnect with exponential backoff means you can restart your local server without losing the tunnel. The client will automatically re‑attach.
-- **Limit exposure** – Use `--basic-auth` even for internal demos. It prevents accidental public access while you iterate.
+### ⏳ Need Help?
+If you find yourself in a branching paradox or encounter a temporal paradox, open an issue with the label `timeline-disruption`. One of our analysts (who definitely aren’t variants) will assist.
 
----
+### 📚 Resources
+- [TVA Handbook for New Recruits](https://github.com/shubhyagami/tunnel/wiki)
+- [Node.js API Reference](https://nodejs.org/en/docs/) (the Ancient Texts)
+- [Render.com Docs](https://render.com/docs) (the TemPad manual)
 
-## 📅 Changelog – 2026-07-29
-
-- **Dashboard UI refresh** – Added request timeline visualization and per‑subdomain traffic breakdown.
-- **Improved reconnection logic** – Reduced unnecessary reconnects during brief network blips.
-- **New `--max-connections` flag** – Control how many concurrent tunnels a single client can open (default 10).
-- **Fixed** – Client now properly cleans up stale WebSocket connections on server restart.
-
----
-
-> *“The best way to predict the future is to build it.” – Alan Kay*
-
-Happy tunneling! 🚇
+**Remember:** All glory to the TVA. And to TunnelX.

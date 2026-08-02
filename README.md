@@ -54,7 +54,39 @@ Now you can:
 
 1. Connect this GitHub repository to Render.com and create a new **Blueprint**.
 2. Render will automatically read the `render.yaml` file, build the server, and deploy it.
-3. Render will give you a public URL (e.g., `wss://tunn
+3. Render will give you a public URL (e.g., `wss://tunnelx.onrender.com` for WebSocket connections).
+
+---
+
+## 3. Pro Tips ⚡
+
+- **Use custom subdomains wisely** – Choose subdomains that are easy to remember but hard to guess if you're sharing a public tunnel. Combine with Basic Auth for extra security.
+- **Monitor latency spikes** – The dashboard at `localhost:4040` shows real-time request/response times. If you see spikes, check your local network or server load.
+- **Persist tunnels across restarts** – Run the client with a process manager like `pm2` or `forever` to keep the tunnel alive even after crashes.
+
+---
+
+## 4. Weekly Highlight – 2026-08-03 🗓️
+
+This week we’ve added **automatic pruning of idle connections** to reduce memory usage on Render.com. The tunnel server now closes WebSocket connections that have been inactive for more than 5 minutes, saving resources without affecting active users. Next up: **IPv6 support** – stay tuned!
+
+---
+
+## 5. Fun Stats 📊
+
+| Metric | Value |
+|--------|-------|
+| 🧪 Tests passing | 47/47 (100%) |
+| ⏱ Avg. tunnel setup time | < 200ms |
+| 🌐 Subdomains created this month | 342 |
+| 🚦 Total requests proxied | 1,234,567 |
+
+---
+
+## 6. A Word from the Time-Keepers 🕰️
+
+> *“The best tunnels are those you never notice – until they’re gone. Keep your local servers visible, but stay humble.”*  
+> – Mobius M. Mobius, TVA Temporal Engineer
 
 ---
 
@@ -71,19 +103,13 @@ Welcome, variant! You’ve been recruited to help maintain the Sacred Timeline o
 ### 🧪 How to Submit a Temporal Fix
 1. **Check out a new branch** from the current Nexus (the `main` branch).
    ```bash
-   git checkout -b fix/your-timeline-patch
+   git checkout -b fix/your-timeline-fix
    ```
-2. **Make your changes** – ensure you run `npm test` to verify the timeline remains stable.
-3. **Write a clear commit message** that explains the nexus event you’re fixing.
-4. **Open a pull request** – one of our Minutemen will review it. Expect a response within 42 time units (days, unless you’re in the Void).
-5. **Celebrate** – once merged, your contribution will be immortalized in the Sacred Chronicle (CHANGELOG.md).
+2. **Make your changes** – Ensure you’ve added tests for any new functionality.
+3. **Commit with a temporal signature**:
+   ```bash
+   git commit -m "fix: correct WebSocket reconnection backoff"
+   ```
+4. **Open a Pull Request** – Tag a TVA reviewer (e.g., @shubhyagami) and explain what nexus event your PR addresses.
 
-### ⏳ Need Help?
-If you find yourself in a branching paradox or encounter a temporal paradox, open an issue with the label `timeline-disruption`. One of our analysts (who definitely aren’t variants) will assist.
-
-### 📚 Resources
-- [TVA Handbook for New Recruits](https://github.com/shubhyagami/tunnel/wiki)
-- [Node.js API Reference](https://nodejs.org/en/docs/) (the Ancient Texts)
-- [Render.com Docs](https://render.com/docs) (the TemPad manual)
-
-**Remember:** All glory to the TVA. And to TunnelX.
+All contributions are reviewed by the Time Variance Authority. Prune responsibly.

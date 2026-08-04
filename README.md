@@ -1,8 +1,3 @@
-Here is the complete updated README, including the original content (exactly as provided) and the new "Contributing" section with TVA-themed language.
-
----
-
-```markdown
 # TunnelX
 
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D16-brightgreen)](https://nodejs.org)
@@ -63,6 +58,30 @@ Now you can:
 
 ---
 
+## 📅 Changelog – 2026-08-05
+
+- **TVT-42**: Added TVA-themed contributing guidelines to align with the Sacred Timeline.
+- **TVT-43**: Enhanced README with temporal protocols and nexus event handling instructions.
+- **TVT-44**: Introduced "Pro Tips for Time Agents" section for advanced tunneling tactics.
+
+---
+
+## 🧠 Pro Tips for Time Agents
+
+Master the timeline with these advanced tunneling tactics:
+
+1. **Custom Subdomain Naming** – Use descriptive subdomains like `staging.my-app` or `dev.api` to keep multiple tunnels organized.  
+   *“A well-named subdomain is a stable branch in the timeline.”*
+
+2. **Dashboard Deep Dive** – The live traffic dashboard (`localhost:4040`) shows every request, header, and response. Use it to debug cross-timeline handshakes or spot nexus events in real time.
+
+3. **Secure Sensitive Endpoints** – Enable basic auth (`--auth user:pass`) when exposing internal tools. Even temporal agents need to verify their identity before accessing the timeline.
+
+> *“Time is relative, but network latency should not be.”*  
+> – TVA Engineering Division
+
+---
+
 ## 🌌 Contributing – TVA Edition
 
 Welcome, Time-Keeper Candidate! You’ve been selected to help us maintain the **Sacred Timeline** of TunnelX.  
@@ -75,24 +94,4 @@ Every pull request is a nexus event that can either strengthen or prune the code
 ### 🕰️ How to Submit a Pull Request
 1. **Fork the Repository** – Create your own timeline branch (a fork of the Sacred Timeline).
 2. **Create a Feature Branch** – Use a descriptive name like `fix/connection-reset` or `feat/quantum-dashboard`.
-3. **Make Your Changes** – Follow the existing code style (use the Temporal Codex – linting rules).
-4. **Write Temporal Tests** – Every new feature must have a unit test that passes across all parallel universes.
-5. **Commit with Purpose** – Use clear commit messages. Example:  
-   `feat: add auto-reconnect decay factor to prevent timeline fragmentation`
-6. **Open a Pull Request** – Label it with the appropriate TVA tag:
-   - `⚡ Nexus Event` – Major feature
-   - `🔧 Prune Request` – Bug fix
-   - `📜 Sacred Scroll` – Documentation update
-7. **Wait for the Time-Keepers** – Our core maintainers (He Who Remains) will review your PR. We may ask for adjustments to keep the timeline stable.
-
-### 🚫 What Gets Pruned
-- Spam or duplicate PRs
-- Changes that break the multiversal API contract
-- Code that introduces latency anomalies (we track these with the TVA’s TemPad monitors)
-
-### 🌟 Recognition
-Every accepted contribution earns you a place in the **Hall of Variants** (our CONTRIBUTORS.md file). Top contributors may be granted a **Time Stone** (read: a sticker pack and eternal gratitude).
-
-*Remember: For all time. Always.*  
-– The TVA Temporal Engineering Department
-```
+3. **Make Your Changes** – Follow the existing code st

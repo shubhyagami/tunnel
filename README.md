@@ -73,44 +73,28 @@ Welcome, Variant! You have been selected by the **Temporal Variance Authority** 
 1. **File a TVA Report** — open an issue describing the temporal anomaly (bug) or desired new feature. Use the templates provided.
 2. **Request a Mission Brief** — we’ll assign you to the task if it aligns with our Time-Keepers’ plan.
 3. **Spawn a Variant Branch** — create a branch from `main` with a name like `fix/nexus-event-123` or `feat/time-door`.
-4. **Make your edits** — remember, each commit is a ripple in the timeline. Keep them atomic and well-described.
-5. **Submit your TemPad (PR)** — open a pull request against `main` and tag at least one Time-Keeper (maintainer).
-6. **Await Judgment** — the Time-Keepers will review your work. If it passes, it will be merged into the sacred timeline. If not, your PR may be **pruned** with helpful feedback.
-
-### 🧪 Testing the Timeline
-
-- All new code must include **timeline-appropriate tests** (unit/integration).
-- Run `npm test` before submitting — if the timeline breaks, your PR will be reset.
-
-### 📝 Commit Messages (TVA-Approved Format)
-
-Use the following style (inspired by the TVA’s bureaucratic precision):
-
-```
-<type>(<scope>): <short description>
-
-[optional body: explain the temporal impact]
-```
-
-Types: `fix`, `feat`, `docs`, `style`, `refactor`, `test`, `chore`
-
-Examples:
-- `fix(proxy): resolve memory leak in multiplexer`
-- `feat(dashboard): add real-time timeline visualizer`
-- `docs(readme): update deployment instructions for new universe`
-
-### 🛡️ TVA Security Protocols
-
-- Never commit **Infinity Stones** (secrets, API keys, or passwords). Use environment variables.
-- If you discover a vulnerability, **don’t create a public issue** — send a private message to the Time-Keepers (email or DM).
-
-### 🏆 Rewards for Good Variants
-
-- Every accepted PR earns you a **TVA pin** (we’ll add your name to the CONTRIBUTORS file).
-- Top contributors get a **custom Temporal Aura badge** on their profile.
-- Solve three nexus events in a month and we’ll send you a limited-edition **Miss Minutes sticker** (while supplies last).
+4. **Make your e
 
 ---
 
-*Remember: For all time. Always.*  
-— The Time-Keepers
+## 📜 Changelog — Temporal Record
+
+### [2026-08-06] — Nexus Event Stabilization
+
+- **Added** proactive time‑splice detection: auto‑reconnect now logs the exact millisecond of disruption for faster root‑cause analysis.
+- **Improved** dashboard latency visualization — traffic flow now rendered as a sacred timeline graph (no more Nexus Events hidden in the noise).
+- **Fixed** a temporal paradox where the client could sometimes believe it was connected before the server acknowledged the handshake. This caused a 0.3% failure rate in high‑load scenarios. Variants responsible have been pruned.
+- **Updated** documentation with a new “Pro Tips” section (see below) to help agents avoid common timeline violations.
+
+---
+
+## 💡 Pro Tips — From the Time‑Keepers
+
+- **Use a dedicated subdomain per environment.** Avoid sharing a single subdomain between staging and production — it creates timeline branches that are hard to reconcile.
+- **Enable Basic Auth for sensitive services** even when behind the tunnel. A rogue variant could intercept traffic if they guess your subdomain.
+- **Monitor the dashboard live** during initial connection. The traffic graph will show you exactly where latency spikes occur — those are often Nexus Events waiting to happen.
+- **If you see repeated disconnects**, check your local firewall. Some networks aggressively prune WebSocket connections after idle periods. Use the `--keepalive` flag (coming in next release) to send a temporal ping every 30 seconds.
+
+---
+
+*This project is maintained by the TVA Temporal Engineering Division. All contributions are subject to timeline approval.*

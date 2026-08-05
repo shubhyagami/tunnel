@@ -58,40 +58,59 @@ Now you can:
 
 ---
 
-## 📅 Changelog – 2026-08-05
+## 🕰️ Contributing — The TVA Way
 
-- **TVT-42**: Added TVA-themed contributing guidelines to align with the Sacred Timeline.
-- **TVT-43**: Enhanced README with temporal protocols and nexus event handling instructions.
-- **TVT-44**: Introduced "Pro Tips for Time Agents" section for advanced tunneling tactics.
+Welcome, Variant! You have been selected by the **Temporal Variance Authority** to help maintain the sacred timeline of TunnelX. Every contribution you make is a correction to a dangerous nexus event. Follow these guidelines to avoid being pruned.
+
+### 🌌 The Sacred Timeline (Code of Conduct)
+
+- All contributors must **respect the timeline**. No breaking changes without a warning first.
+- **No Loki-style trickery**: write clean, readable code and keep your PR descriptions honest.
+- **Do not create branches that shouldn't exist** — always fork from `main`.
+
+### 🔧 Minuteman Workflow
+
+1. **File a TVA Report** — open an issue describing the temporal anomaly (bug) or desired new feature. Use the templates provided.
+2. **Request a Mission Brief** — we’ll assign you to the task if it aligns with our Time-Keepers’ plan.
+3. **Spawn a Variant Branch** — create a branch from `main` with a name like `fix/nexus-event-123` or `feat/time-door`.
+4. **Make your edits** — remember, each commit is a ripple in the timeline. Keep them atomic and well-described.
+5. **Submit your TemPad (PR)** — open a pull request against `main` and tag at least one Time-Keeper (maintainer).
+6. **Await Judgment** — the Time-Keepers will review your work. If it passes, it will be merged into the sacred timeline. If not, your PR may be **pruned** with helpful feedback.
+
+### 🧪 Testing the Timeline
+
+- All new code must include **timeline-appropriate tests** (unit/integration).
+- Run `npm test` before submitting — if the timeline breaks, your PR will be reset.
+
+### 📝 Commit Messages (TVA-Approved Format)
+
+Use the following style (inspired by the TVA’s bureaucratic precision):
+
+```
+<type>(<scope>): <short description>
+
+[optional body: explain the temporal impact]
+```
+
+Types: `fix`, `feat`, `docs`, `style`, `refactor`, `test`, `chore`
+
+Examples:
+- `fix(proxy): resolve memory leak in multiplexer`
+- `feat(dashboard): add real-time timeline visualizer`
+- `docs(readme): update deployment instructions for new universe`
+
+### 🛡️ TVA Security Protocols
+
+- Never commit **Infinity Stones** (secrets, API keys, or passwords). Use environment variables.
+- If you discover a vulnerability, **don’t create a public issue** — send a private message to the Time-Keepers (email or DM).
+
+### 🏆 Rewards for Good Variants
+
+- Every accepted PR earns you a **TVA pin** (we’ll add your name to the CONTRIBUTORS file).
+- Top contributors get a **custom Temporal Aura badge** on their profile.
+- Solve three nexus events in a month and we’ll send you a limited-edition **Miss Minutes sticker** (while supplies last).
 
 ---
 
-## 🧠 Pro Tips for Time Agents
-
-Master the timeline with these advanced tunneling tactics:
-
-1. **Custom Subdomain Naming** – Use descriptive subdomains like `staging.my-app` or `dev.api` to keep multiple tunnels organized.  
-   *“A well-named subdomain is a stable branch in the timeline.”*
-
-2. **Dashboard Deep Dive** – The live traffic dashboard (`localhost:4040`) shows every request, header, and response. Use it to debug cross-timeline handshakes or spot nexus events in real time.
-
-3. **Secure Sensitive Endpoints** – Enable basic auth (`--auth user:pass`) when exposing internal tools. Even temporal agents need to verify their identity before accessing the timeline.
-
-> *“Time is relative, but network latency should not be.”*  
-> – TVA Engineering Division
-
----
-
-## 🌌 Contributing – TVA Edition
-
-Welcome, Time-Keeper Candidate! You’ve been selected to help us maintain the **Sacred Timeline** of TunnelX.  
-Every pull request is a nexus event that can either strengthen or prune the codebase. Please follow these temporal protocols:
-
-### ⏳ Before You Start
-- **File a Variant Report** – Open an issue describing the bug or feature you want to tackle. This prevents paradoxes.
-- **Check the Timeline** – Look at existing PRs and issues so you don’t accidentally create a branching reality.
-
-### 🕰️ How to Submit a Pull Request
-1. **Fork the Repository** – Create your own timeline branch (a fork of the Sacred Timeline).
-2. **Create a Feature Branch** – Use a descriptive name like `fix/connection-reset` or `feat/quantum-dashboard`.
-3. **Make Your Changes** – Follow the existing code st
+*Remember: For all time. Always.*  
+— The Time-Keepers

@@ -13,32 +13,43 @@
     |_|  \___/|_| \_|_____|_| \_|_| \_|\___/
 ```
 
-A high-performance, single-port HTTP/WebSocket tunneling solution designed for Render.com and local development. It allows you to expose your local web servers to the public internet securely and fast.
+A high-performance, single-port HTTP/WebSocket tunneling solution designed for Render.com and local development. It allows you to securely and quickly expose your local web servers to the public internet.
 
 ## Features
-- 🚀 **Ultra-fast multiplexed proxy** (disables Nagle's algorithm for minimum latency)
-- 🎨 **Web UI Dashboard** for real-time traffic monitoring
-- 🔒 **Basic Auth protection** for local services
-- ⚡ **Auto-reconnecting resilience** with exponential backoff
+
+- **Ultra-fast multiplexed proxy**: Disables Nagle's algorithm for minimum latency.
+- **Web UI Dashboard**: Real-time traffic monitoring at your fingertips.
+- **Basic Auth protection**: Built-in authentication for securing local services.
+- **Resilient auto-reconnection**: Automatically reconnects with exponential backoff.
 
 ---
 
-## 1. How to run it LOCALLY (for testing)
+## Getting Started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v16 or higher)
+- A local web server you want to expose (e.g., React dev server, Python HTTP server, Express app).
+
+### 1. Running Locally (For Testing)
 
 First, start the Tunnel Server:
+
 ```bash
 npm install
 npm run build
 npm start
 ```
-*(The server will run on port 8080 by default)*
+*(The server runs on port 8080 by default)*
 
 Next, start your local web server (the one you want to expose). For example, a simple Python server:
+
 ```bash
 python -m http.server 3000
 ```
 
 Finally, start the Tunnel Client to connect them:
+
 ```bash
 # Connects your local port 3000 to the server, requesting the subdomain "my-app"
 node src/client.js --port 3000 --subdomain my-app
@@ -48,53 +59,47 @@ Now you can:
 - View your exposed site at: `http://my-app.localhost:8080`
 - View your Live Traffic Dashboard at: `http://localhost:4040`
 
----
-
-## 2. How to run it in PRODUCTION (Render.com)
+### 2. Running in Production (Render.com)
 
 1. Connect this GitHub repository to Render.com and create a new **Blueprint**.
 2. Render will automatically read the `render.yaml` file, build the server, and deploy it.
-3. Render will give you a public URL (e.g., `wss://tunn
+3. Render will provide you with a public URL (e.g., `wss://tunnel.example.com`).
+4. Point your local client to the production server using the `--host` flag:
+   ```bash
+   node src/client.js --host tunnel.example.com --port 3000 --subdomain my-app
+   ```
 
 ---
 
-## 🕰️ Contributing — The TVA Way
+## Pro Tips
 
-Welcome, Variant! You have been selected by the **Temporal Variance Authority** to help maintain the sacred timeline of TunnelX. Every contribution you make is a correction to a dangerous nexus event. Follow these guidelines to avoid being pruned.
-
-### 🌌 The Sacred Timeline (Code of Conduct)
-
-- All contributors must **respect the timeline**. No breaking changes without a warning first.
-- **No Loki-style trickery**: write clean, readable code and keep your PR descriptions honest.
-- **Do not create branches that shouldn't exist** — always fork from `main`.
-
-### 🔧 Minuteman Workflow
-
-1. **File a TVA Report** — open an issue describing the temporal anomaly (bug) or desired new feature. Use the templates provided.
-2. **Request a Mission Brief** — we’ll assign you to the task if it aligns with our Time-Keepers’ plan.
-3. **Spawn a Variant Branch** — create a branch from `main` with a name like `fix/nexus-event-123` or `feat/time-door`.
-4. **Make your e
+- **Use a dedicated subdomain per environment.** Avoid sharing a single subdomain between staging and production to prevent routing conflicts.
+- **Enable Basic Auth for sensitive services** even when behind the tunnel to prevent unauthorized access.
+- **Monitor the dashboard live** during the initial connection to identify exactly where latency spikes occur.
+- **If you see repeated disconnects**, check your local firewall. Some networks aggressively terminate WebSocket connections after idle periods. Use the `--keepalive` flag to send a ping every 30 seconds.
 
 ---
 
-## 📜 Changelog — Temporal Record
+## Contributing
 
-### [2026-08-06] — Nexus Event Stabilization
+Contributions are welcome! If you want to fix a bug or add a new feature:
 
-- **Added** proactive time‑splice detection: auto‑reconnect now logs the exact millisecond of disruption for faster root‑cause analysis.
-- **Improved** dashboard latency visualization — traffic flow now rendered as a sacred timeline graph (no more Nexus Events hidden in the noise).
-- **Fixed** a temporal paradox where the client could sometimes believe it was connected before the server acknowledged the handshake. This caused a 0.3% failure rate in high‑load scenarios. Variants responsible have been pruned.
-- **Updated** documentation with a new “Pro Tips” section (see below) to help agents avoid common timeline violations.
-
----
-
-## 💡 Pro Tips — From the Time‑Keepers
-
-- **Use a dedicated subdomain per environment.** Avoid sharing a single subdomain between staging and production — it creates timeline branches that are hard to reconcile.
-- **Enable Basic Auth for sensitive services** even when behind the tunnel. A rogue variant could intercept traffic if they guess your subdomain.
-- **Monitor the dashboard live** during initial connection. The traffic graph will show you exactly where latency spikes occur — those are often Nexus Events waiting to happen.
-- **If you see repeated disconnects**, check your local firewall. Some networks aggressively prune WebSocket connections after idle periods. Use the `--keepalive` flag (coming in next release) to send a temporal ping every 30 seconds.
+1. **Open an issue** describing the bug or desired feature.
+2. **Fork the repository** and create a branch from `main` (e.g., `fix/reconnect-bug` or `feat/new-auth`).
+3. **Write clean, readable code** and ensure your PR description clearly explains the changes.
+4. **Avoid breaking changes** without discussing them in an issue first.
 
 ---
 
-*This project is maintained by the TVA Temporal Engineering Division. All contributions are subject to timeline approval.*
+## Changelog
+
+### [2026-08-06]
+
+- **Added** proactive connection detection: auto-reconnect now logs the exact millisecond of disruption for faster root-cause analysis.
+- **Improved** dashboard latency visualization — traffic flow is now rendered as a real-time graph.
+- **Fixed** a race condition where the client could sometimes believe it was connected before the server acknowledged the handshake. This caused a 0.3% failure rate in high-load scenarios.
+- **Updated** documentation with a new Pro Tips section to help users avoid common configuration mistakes.
+
+---
+
+*This project is maintained by shubhyagami. All contributions are subject to review.*

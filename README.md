@@ -1,28 +1,18 @@
 # TunnelX
 
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D16-brightgreen)](https://nodejs.org)
-[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](https://github.com/shubhyagami/tunnel/pulls)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Build Status](https://img.shields.io/badge/build-passing-success)]()
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](https://github.com/shubhyagami/tunnel/pulls)
 
-```
-   _____ _   _ _   _ _____ _   _ _   _  ___
-  |_   _| | | | \ | | ____| \ | | \ | |/ _ \
-    | | | | | |  \| |  _| |  \| |  \| | | | |
-    | | | |_| | |\  | |___| |\  | |\  | |_| |
-    |_|  \___/|_| \_|_____|_| \_|_| \_|\___/
-```
-
-A high-performance, single-port HTTP/WebSocket tunneling solution designed for Render.com and local development. It allows you to securely and quickly expose your local web servers to the public internet.
+A high-performance HTTP/WebSocket tunneling solution designed for Render.com and local development. It allows you to securely and quickly expose local web servers to the public internet via a single port.
 
 ## Features
 
-- **Ultra-fast multiplexed proxy**: Disables Nagle's algorithm for minimum latency.
-- **Web UI Dashboard**: Real-time traffic monitoring at your fingertips.
-- **Basic Auth protection**: Built-in authentication for securing local services.
-- **Resilient auto-reconnection**: Automatically reconnects with exponential backoff.
-
----
+- **Ultra-fast multiplexed proxy**: Nagle's algorithm is disabled to ensure minimum latency.
+- **Web UI Dashboard**: Real-time traffic monitoring and latency visualization at your fingertips.
+- **Basic Auth protection**: Built-in authentication for securing local services behind the tunnel.
+- **Resilient auto-reconnection**: Automatically reconnects with exponential backoff and precise disruption logging.
 
 ## Getting Started
 
@@ -42,7 +32,7 @@ npm start
 ```
 *(The server runs on port 8080 by default)*
 
-Next, start your local web server (the one you want to expose). For example, a simple Python server:
+Next, start your local web server (the one you want to expose). For example, a basic Python server:
 
 ```bash
 python -m http.server 3000
@@ -55,9 +45,7 @@ Finally, start the Tunnel Client to connect them:
 node src/client.js --port 3000 --subdomain my-app
 ```
 
-Now you can:
-- View your exposed site at: `http://my-app.localhost:8080`
-- View your Live Traffic Dashboard at: `http://localhost:4040`
+You can now view your exposed site at `http://my-app.localhost:8080` and monitor live traffic on the dashboard at `http://localhost:4040`.
 
 ### 2. Running in Production (Render.com)
 
@@ -65,20 +53,17 @@ Now you can:
 2. Render will automatically read the `render.yaml` file, build the server, and deploy it.
 3. Render will provide you with a public URL (e.g., `wss://tunnel.example.com`).
 4. Point your local client to the production server using the `--host` flag:
-   ```bash
-   node src/client.js --host tunnel.example.com --port 3000 --subdomain my-app
-   ```
 
----
+```bash
+node src/client.js --host tunnel.example.com --port 3000 --subdomain my-app
+```
 
 ## Pro Tips
 
-- **Use a dedicated subdomain per environment.** Avoid sharing a single subdomain between staging and production to prevent routing conflicts.
+- **Use dedicated subdomains per environment.** Avoid sharing a single subdomain between staging and production to prevent routing conflicts.
 - **Enable Basic Auth for sensitive services** even when behind the tunnel to prevent unauthorized access.
 - **Monitor the dashboard live** during the initial connection to identify exactly where latency spikes occur.
-- **If you see repeated disconnects**, check your local firewall. Some networks aggressively terminate WebSocket connections after idle periods. Use the `--keepalive` flag to send a ping every 30 seconds.
-
----
+- **Handle repeated disconnects.** Some networks aggressively terminate idle WebSocket connections. If you experience drops, use the `--keepalive` flag to send a ping every 30 seconds.
 
 ## Contributing
 
@@ -89,8 +74,6 @@ Contributions are welcome! If you want to fix a bug or add a new feature:
 3. **Write clean, readable code** and ensure your PR description clearly explains the changes.
 4. **Avoid breaking changes** without discussing them in an issue first.
 
----
-
 ## Changelog
 
 ### [2026-08-06]
@@ -98,8 +81,4 @@ Contributions are welcome! If you want to fix a bug or add a new feature:
 - **Added** proactive connection detection: auto-reconnect now logs the exact millisecond of disruption for faster root-cause analysis.
 - **Improved** dashboard latency visualization — traffic flow is now rendered as a real-time graph.
 - **Fixed** a race condition where the client could sometimes believe it was connected before the server acknowledged the handshake. This caused a 0.3% failure rate in high-load scenarios.
-- **Updated** documentation with a new Pro Tips section to help users avoid common configuration mistakes.
-
----
-
-*This project is maintained by shubhyagami. All contributions are subject to review.*
+- **Updated** documentation with new Pro Tips to help users avoid common configuration mistakes.

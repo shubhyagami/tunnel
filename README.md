@@ -1,13 +1,12 @@
-# TunnelX
-
-[![Node.js Version](https://img.shields.io/badge/node-%3E%3D16-brightgreen)](https://nodejs.org)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
-[![Build Status](https://img.shields.io/badge/build-passing-success)]()
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](https://github.com/shubhyagami/tunnel/pulls)
+# Tunnel
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D16-brightgreen.svg)](https://nodejs.org)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Build Status](https://img.shields.io/badge/build-passing-success.svg)]()
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/shubhyagami/tunnel/pulls)
 
 A high-performance HTTP/WebSocket tunneling solution designed for Render.com and local development. It allows you to securely and quickly expose local web servers to the public internet via a single port.
 
-## Features
+### Features
 
 - **Ultra-fast multiplexed proxy**: Nagle's algorithm is disabled to ensure minimum latency.
 - **Web UI Dashboard**: Real-time traffic monitoring and latency visualization at your fingertips.
@@ -15,31 +14,34 @@ A high-performance HTTP/WebSocket tunneling solution designed for Render.com and
 - **Resilient auto-reconnection**: Automatically reconnects with exponential backoff and precise disruption logging.
 
 ## Getting Started
+To start, you need to meet the prerequisites below.
 
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) (v16 or higher)
-- A local web server you want to expose (e.g., React dev server, Python HTTP server, Express app).
+- A local web server you want to expose (e.g., React dev server, Python HTTP server, Express app)
 
 ### 1. Running Locally (For Testing)
-
-First, start the Tunnel Server:
-
+First, install the required dependencies:
 ```bash
 npm install
+```
+Next, build the project:
+```bash
 npm run build
+```
+Then, start the Tunnel Server:
+```bash
 npm start
 ```
 *(The server runs on port 8080 by default)*
 
-Next, start your local web server (the one you want to expose). For example, a basic Python server:
-
+Start your local web server (the one you want to expose). For example, a basic Python server:
 ```bash
 python -m http.server 3000
 ```
 
 Finally, start the Tunnel Client to connect them:
-
 ```bash
 # Connects your local port 3000 to the server, requesting the subdomain "my-app"
 node src/client.js --port 3000 --subdomain my-app
@@ -53,17 +55,16 @@ You can now view your exposed site at `http://my-app.localhost:8080` and monitor
 2. Render will automatically read the `render.yaml` file, build the server, and deploy it.
 3. Render will provide you with a public URL (e.g., `wss://tunnel.example.com`).
 4. Point your local client to the production server using the `--host` flag:
-
 ```bash
 node src/client.js --host tunnel.example.com --port 3000 --subdomain my-app
 ```
 
 ## Pro Tips
 
-- **Use dedicated subdomains per environment.** Avoid sharing a single subdomain between staging and production to prevent routing conflicts.
+- **Use dedicated subdomains per environment**. Avoid sharing a single subdomain between staging and production to prevent routing conflicts.
 - **Enable Basic Auth for sensitive services** even when behind the tunnel to prevent unauthorized access.
 - **Monitor the dashboard live** during the initial connection to identify exactly where latency spikes occur.
-- **Handle repeated disconnects.** Some networks aggressively terminate idle WebSocket connections. If you experience drops, use the `--keepalive` flag to send a ping every 30 seconds.
+- **Handle repeated disconnects**. Some networks aggressively terminate idle WebSocket connections. If you experience drops, use the `--keepalive` flag to send a ping every 30 seconds.
 
 ## Contributing
 
@@ -75,7 +76,6 @@ Contributions are welcome! If you want to fix a bug or add a new feature:
 4. **Avoid breaking changes** without discussing them in an issue first.
 
 ## Changelog
-
 ### [2026-08-06]
 
 - **Added** proactive connection detection: auto-reconnect now logs the exact millisecond of disruption for faster root-cause analysis.

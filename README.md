@@ -13,16 +13,16 @@ A high-performance HTTP/WebSocket tunneling solution designed for Render.com and
 - **Basic Auth protection**: Offers built-in authentication for securing local services behind the tunnel.
 - **Resilient auto-reconnection**: Automatically reconnects with exponential backoff and precise disruption logging.
 
-## Getting Started
+### Getting Started
 
 Before you begin, ensure you have the required prerequisites.
 
-### Prerequisites
+#### Prerequisites
 
 - [Node.js](https://nodejs.org/) (version 16 or higher)
 - A local web server you want to expose (e.g., React dev server, Python HTTP server, Express app)
 
-### Setting Up Your Development Environment
+#### Setting Up Your Development Environment
 
 1. **Install dependencies**: Run the following command to install the required dependencies.
    ```bash
@@ -61,14 +61,14 @@ You can now view your exposed site at `http://my-app.localhost:8080` and monitor
    node src/client.js --host tunnel.example.com --port 3000 --subdomain my-app
    ```
 
-## Pro Tips
+### Pro Tips
 
 - **Use dedicated subdomains per environment**: Avoid sharing a single subdomain between staging and production to prevent routing conflicts.
 - **Enable Basic Auth for sensitive services**: Even when behind the tunnel, use Basic Auth to prevent unauthorized access.
 - **Monitor the dashboard live**: During the initial connection, monitor the dashboard to identify latency spikes and take precise action.
 - **Handle repeated disconnects**: If you experience frequent drops, use the `--keepalive` flag to send a ping every 30 seconds.
 
-## Contributing
+### Contributing
 
 Contributions are welcome! If you want to fix a bug or add a new feature:
 
@@ -77,9 +77,9 @@ Contributions are welcome! If you want to fix a bug or add a new feature:
 3. **Write clean, readable code**: Ensure your PR description clearly explains the changes.
 4. **Avoid breaking changes**: Discuss any changes with the community before making them.
 
-## Changelog
+### Changelog
 
-### [2026-08-06]
+#### [2026-08-26]
 
 - **Improved proactive connection detection**: Auto-reconnect now logs the exact millisecond of disruption for faster root-cause analysis.
 - **Enhanced dashboard latency visualization**: Traffic flow is now rendered as a real-time graph.

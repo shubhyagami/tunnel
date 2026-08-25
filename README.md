@@ -8,77 +8,80 @@ A high-performance HTTP/WebSocket tunneling solution designed for Render.com and
 
 ### Features
 
-- **Ultra-fast multiplexed proxy**: Nagle's algorithm is disabled to ensure minimum latency.
-- **Web UI Dashboard**: Real-time traffic monitoring and latency visualization at your fingertips.
-- **Basic Auth protection**: Built-in authentication for securing local services behind the tunnel.
+- **High-performance multiplexed proxy**: Enables ultra-fast connections and minimizes latency with Nagle's algorithm disabled.
+- **Web UI Dashboard**: Provides real-time traffic monitoring and latency visualization for precise control.
+- **Basic Auth protection**: Offers built-in authentication for securing local services behind the tunnel.
 - **Resilient auto-reconnection**: Automatically reconnects with exponential backoff and precise disruption logging.
 
 ## Getting Started
-To start, you need to meet the prerequisites below.
+
+Before you begin, ensure you have the required prerequisites.
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (v16 or higher)
+- [Node.js](https://nodejs.org/) (version 16 or higher)
 - A local web server you want to expose (e.g., React dev server, Python HTTP server, Express app)
 
-### 1. Running Locally (For Testing)
-First, install the required dependencies:
-```bash
-npm install
-```
-Next, build the project:
-```bash
-npm run build
-```
-Then, start the Tunnel Server:
-```bash
-npm start
-```
-*(The server runs on port 8080 by default)*
+### Setting Up Your Development Environment
 
-Start your local web server (the one you want to expose). For example, a basic Python server:
-```bash
-python -m http.server 3000
-```
+1. **Install dependencies**: Run the following command to install the required dependencies.
+   ```bash
+   npm install
+   ```
+2. **Build the project**: Run the following command to build the project.
+   ```bash
+   npm run build
+   ```
+3. **Start the Tunnel Server**: Run the following command to start the Tunnel Server.
+   ```bash
+   npm start
+   ```
+   *(The server runs on port 8080 by default)*
 
-Finally, start the Tunnel Client to connect them:
-```bash
-# Connects your local port 3000 to the server, requesting the subdomain "my-app"
-node src/client.js --port 3000 --subdomain my-app
-```
+4. **Start your local web server**: For example, a basic Python server:
+   ```bash
+   python -m http.server 3000
+   ```
+
+5. **Connect the Tunnel Client**: Run the following command to connect the Tunnel Client.
+   ```bash
+   # Connects your local port 3000 to the server, requesting the subdomain "my-app"
+   node src/client.js --port 3000 --subdomain my-app
+   ```
 
 You can now view your exposed site at `http://my-app.localhost:8080` and monitor live traffic on the dashboard at `http://localhost:4040`.
 
-### 2. Running in Production (Render.com)
+### Running in Production (Render.com)
 
-1. Connect this GitHub repository to Render.com and create a new **Blueprint**.
-2. Render will automatically read the `render.yaml` file, build the server, and deploy it.
-3. Render will provide you with a public URL (e.g., `wss://tunnel.example.com`).
-4. Point your local client to the production server using the `--host` flag:
-```bash
-node src/client.js --host tunnel.example.com --port 3000 --subdomain my-app
-```
+1. **Create a Render.com Blueprint**: Connect this GitHub repository to Render.com and create a new **Blueprint**.
+2. **Render will automatically deploy**: Render will read the `render.yaml` file, build the server, and deploy it.
+3. **Get your public URL**: Render will provide you with a public URL (e.g., `wss://tunnel.example.com`).
+4. **Point your client to the production server**: Use the `--host` flag to point your client to the production server.
+   ```bash
+   node src/client.js --host tunnel.example.com --port 3000 --subdomain my-app
+   ```
 
 ## Pro Tips
 
-- **Use dedicated subdomains per environment**. Avoid sharing a single subdomain between staging and production to prevent routing conflicts.
-- **Enable Basic Auth for sensitive services** even when behind the tunnel to prevent unauthorized access.
-- **Monitor the dashboard live** during the initial connection to identify exactly where latency spikes occur.
-- **Handle repeated disconnects**. Some networks aggressively terminate idle WebSocket connections. If you experience drops, use the `--keepalive` flag to send a ping every 30 seconds.
+- **Use dedicated subdomains per environment**: Avoid sharing a single subdomain between staging and production to prevent routing conflicts.
+- **Enable Basic Auth for sensitive services**: Even when behind the tunnel, use Basic Auth to prevent unauthorized access.
+- **Monitor the dashboard live**: During the initial connection, monitor the dashboard to identify latency spikes and take precise action.
+- **Handle repeated disconnects**: If you experience frequent drops, use the `--keepalive` flag to send a ping every 30 seconds.
 
 ## Contributing
 
 Contributions are welcome! If you want to fix a bug or add a new feature:
 
-1. **Open an issue** describing the bug or desired feature.
-2. **Fork the repository** and create a branch from `main` (e.g., `fix/reconnect-bug` or `feat/new-auth`).
-3. **Write clean, readable code** and ensure your PR description clearly explains the changes.
-4. **Avoid breaking changes** without discussing them in an issue first.
+1. **Open an issue**: Describe the bug or desired feature.
+2. **Fork the repository**: Create a branch from `main` (e.g., `fix/reconnect-bug` or `feat/new-auth`).
+3. **Write clean, readable code**: Ensure your PR description clearly explains the changes.
+4. **Avoid breaking changes**: Discuss any changes with the community before making them.
 
 ## Changelog
+
 ### [2026-08-06]
 
-- **Added** proactive connection detection: auto-reconnect now logs the exact millisecond of disruption for faster root-cause analysis.
-- **Improved** dashboard latency visualization — traffic flow is now rendered as a real-time graph.
+- **Improved proactive connection detection**: Auto-reconnect now logs the exact millisecond of disruption for faster root-cause analysis.
+- **Enhanced dashboard latency visualization**: Traffic flow is now rendered as a real-time graph.
 - **Fixed** a race condition where the client could sometimes believe it was connected before the server acknowledged the handshake. This caused a 0.3% failure rate in high-load scenarios.
 - **Updated** documentation with new Pro Tips to help users avoid common configuration mistakes.

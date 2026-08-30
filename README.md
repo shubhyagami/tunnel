@@ -1,4 +1,4 @@
-# Tunnel  
+# Tunnel
 
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D16-brightgreen.svg)](https://nodejs.org)  
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)  
@@ -7,38 +7,38 @@
 
 A lightweight, high‑performance HTTP/WebSocket tunnel that exposes local services (React dev servers, Python HTTP servers, Express apps, etc.) to the public internet through a single port. Ideal for development and Render.com deployments.
 
----  
+---
 
-## Features  
+## Features
 
 - Multiplexed proxy with Nagle’s algorithm disabled for ultra‑low latency.  
 - Dashboard UI – real‑time traffic monitoring and latency visualization.  
 - Basic Auth protection – simple authentication for securing services.  
 - Resilient auto‑reconnection with exponential back‑off and precise disruption logs.  
 
----  
+---
 
-## Getting Started  
+## Getting Started
 
-### Prerequisites  
+### Prerequisites
 
 - **Node.js** ≥ 16  
 - A local server you want to expose (e.g., React dev server, Python HTTP server, Express app)  
 
-### Installation & Build  
+### Installation & Build
 
 ```bash
 npm install      # Install dependencies
 npm run build    # Build the project
-```  
+```
 
-### Run the tunnel server  
+### Run the tunnel server
 
 ```bash
 npm start        # Starts the server on port 8080 by default
-```  
+```
 
-### Expose a local service  
+### Expose a local service
 
 1. Start your local server (example with Python):  
 
@@ -54,13 +54,13 @@ npm start        # Starts the server on port 8080 by default
 
 Your service is now reachable at `http://my-app.localhost:8080`.  
 
-### Dashboard  
+### Dashboard
 
 Live traffic and latency can be viewed at `http://localhost:4040`.
 
----  
+---
 
-## Running in Production (Render.com)  
+## Running in Production (Render.com)
 
 1. Create a Render.com Blueprint and link this repository.  
 2. Add a new Blueprint; Render automatically reads `render.yaml`, builds the server, and deploys it.  
@@ -71,18 +71,18 @@ Live traffic and latency can be viewed at `http://localhost:4040`.
    node src/client.js --host tunnel.example.com --port 3000 --subdomain my-app
    ```  
 
----  
+---
 
-## Pro Tips  
+## Pro Tips
 
 - Use a dedicated subdomain for each environment (staging vs. production) to avoid conflicts.  
 - Enable Basic Auth for any service that must remain private, even when behind the tunnel.  
 - Monitor the dashboard during initial connections to spot latency spikes and adjust configurations.  
 - If you experience frequent disconnects, add a keep‑alive ping (e.g., `--keepalive`) to maintain the connection.  
 
----  
+---
 
-## Contributing  
+## Contributing
 
 Contributions are welcome. To fix a bug or add a feature:
 
@@ -93,11 +93,11 @@ Contributions are welcome. To fix a bug or add a feature:
 
 Please keep changes focused and discuss larger modifications with the maintainers before opening a PR.
 
----  
+---
 
-## Changelog  
+## Changelog
 
-### 2026‑08‑26  
+### 2026‑08‑26
 
 - Added precise millisecond timestamps for disruption logs.  
 - Rendered dashboard latency as a real‑time graph.  

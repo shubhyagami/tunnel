@@ -1,97 +1,186 @@
 # Tunnel
 
-[![Node.js Version](https://img.shields.io/badge/node-%3E%3D16-brightgreen.svg)](https://nodejs.org)  
+> A lightweight, high‑performance HTTP/WebSocket tunnel that exposes local services to the public internet over a single port.
+
+**Badges**
+
+[![Node.js ≥ 16](https://img.shields.io/badge/node-%3E%3D16-brightgreen.svg)](https://nodejs.org)  
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)  
-[![Build Status](https://img.shields.io/github/actions/workflow/status/shubhyagami/tunnel/.github/workflows/ci.yml?branch=main&label=Build)](https://github.com/shubhyagami/tunnel/actions)  
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/shubhyagami/tunnel/pulls)  
-
-A lightweight, high‑performance HTTP/WebSocket tunnel that exposes local services (React dev servers, Python HTTP servers, Express apps, etc.) to the public internet through a single port. Ideal for development and Render.com deployments.
+[![CI Build](https://img.shields.io/github/actions/workflow/status/shubhyagami/tunnel/.github/workflows/ci.yml?branch=main&label=Build)](https://github.com/shubhyagami/tunnel/actions)  
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/shubhyagami/tunnel/pulls)
 
 ---
 
-## Features
+## Table of Contents
 
-- Multiplexed proxy with Nagle’s algorithm disabled for ultra‑low latency.  
-- Dashboard UI – real‑time traffic monitoring and latency visualization.  
-- Basic Auth protection – simple authentication for securing services.  
-- Resilient auto‑reconnection with exponential back‑off and precise disruption logs.  
+- [Overview](#overview)
+- [Quickstart](#quickstart)
+- [Installation](#installation)
+- [Running the server](#running-the-server)
+- [Exposing a local service](#exposing-a-local-service)
+- [Dashboard](#dashboard)
+- [Deployment](#deployment)
+- [Configuration](#configuration)
+- [Tips & FAQ](#tips--faq)
+- [Contributing](#contributing)
+- [Changelog](#changelog)
+- [License](#license)
 
 ---
 
-## Getting Started
+## Overview
 
-### Prerequisites
+Tunnel allows you to safely expose a local HTTP or WebSocket server to the public internet with only one open port. It is suited for local development, demonstration, and quick deployment on Render.com or other hosting providers.
 
-- **Node.js** ≥ 16  
-- A local server you want to expose (e.g., React dev server, Python HTTP server, Express app)  
+Key characteristics:
 
-### Installation & Build
+- **Multiplexed proxy** – multiple tunnels share a single socket, with Nagle’s algorithm disabled for low latency.
+- **Dashboard UI** – real‑time traffic and latency monitoring on `localhost:4040`.
+- **Basic Auth** – optional HTTP authentication for added security.
+- **Reconnect logic** – automatic reconnection with exponential back‑off and detailed disruption logs.
+
+---
+
+## Quickstart
 
 ```bash
-npm install      # Install dependencies
-npm run build    # Build the project
+# Clone the repo
+git clone https://github.com/shubhyagami/tunnel.git
+cd tunnel
+
+# Install dependencies and build
+npm ci
+npm run build
+
+# Start the tunnel server (default port 8080)
+npm start
+
+# In another terminal, expose a local service
+python -m http.server 3000      # or any local server
+node src/client.js --port 3000 --subdomain my-app
+
+# Access the service at
+http://my-app.localhost:8080
 ```
 
-### Run the tunnel server
+The dashboard is available at `http://localhost:4040`.
+
+---
+
+## Installation
 
 ```bash
-npm start        # Starts the server on port 8080 by default
+npm install
+npm run build
 ```
 
-### Expose a local service
+- `npm install` – Installs all dependencies.
+- `npm run build` – Transpiles TypeScript and bundles the code.
 
-1. Start your local server (example with Python):  
+## Running the server
 
-   ```bash
-   python -m http.server 3000
-   ```  
+```bash
+npm start
+```
 
-2. Launch the tunnel client to expose port 3000 under a subdomain:  
+The server starts on port `8080` by default. You can change the port with the `--port` flag:
+
+```bash
+npm start -- --port 9090
+```
+
+---
+
+## Exposing a local service
+
+1. **Start your local server** (e.g., `python -m http.server 3000`).
+2. **Run the client** specifying the local port and a unique subdomain:
 
    ```bash
    node src/client.js --port 3000 --subdomain my-app
-   ```  
+   ```
 
-Your service is now reachable at `http://my-app.localhost:8080`.  
+3. **Visit the URL** shown in the client log, e.g.:
 
-### Dashboard
+   ```
+   http://my-app.localhost:8080
+   ```
 
-Live traffic and latency can be viewed at `http://localhost:4040`.
+### Subdomains
+
+Each tunnel is identified by a subdomain. Use a unique subdomain per environment (dev, staging, production) to avoid collisions.
 
 ---
 
-## Running in Production (Render.com)
+## Dashboard
 
-1. Create a Render.com Blueprint and link this repository.  
-2. Add a new Blueprint; Render automatically reads `render.yaml`, builds the server, and deploys it.  
-3. Obtain the generated public URL (e.g., `wss://tunnel.example.com`).  
-4. Point the client to the production server:  
+The dashboard runs on `localhost:4040` and shows:
+
+- Live traffic statistics
+- Latency graphs
+- Connection status
+
+Open the address in your browser while the server is running.
+
+---
+
+## Deployment
+
+Render.com can deploy the server automatically using the provided `render.yaml`. For any other provider, copy the built artifacts and run the server as above.
+
+### Render.com
+
+1. Create a Render.com Blueprint linked to this repository.
+2. Add the `tunnel` service; Render will read `render.yaml`, build, and deploy.
+3. After deployment, note the public URL (e.g., `wss://tunnel.example.com`).
+4. Point your client to the production host:
 
    ```bash
    node src/client.js --host tunnel.example.com --port 3000 --subdomain my-app
-   ```  
+   ```
 
 ---
 
-## Pro Tips
+## Configuration
 
-- Use a dedicated subdomain for each environment (staging vs. production) to avoid conflicts.  
-- Enable Basic Auth for any service that must remain private, even when behind the tunnel.  
-- Monitor the dashboard during initial connections to spot latency spikes and adjust configurations.  
-- If you experience frequent disconnects, add a keep‑alive ping (e.g., `--keepalive`) to maintain the connection.  
+The client accepts the following flags:
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--host` | Tunnel server hostname (defaults to `localhost`) | |
+| `--port` | Local server port to expose | required |
+| `--subdomain` | Unique subdomain for the tunnel | required |
+| `--keepalive` | Send periodic ping frames to keep the connection alive | false |
+| `--auth` | Basic Auth credentials in `user:pass` format | none |
+
+Example with keep‑alive:
+
+```bash
+node src/client.js --port 3000 --subdomain my-app --keepalive
+```
+
+---
+
+## Tips & FAQ
+
+- **Avoid subdomain conflicts** by using environment‑specific names (e.g., `dev-myapp`, `staging-myapp`).
+- **Secure sensitive services** with Basic Auth: `--auth user:password`.
+- **Stable connections**: enable `--keepalive` if you notice frequent disconnects, especially over shared networks.
+- **Monitoring**: keep the Dashboard open during the initial run to spot latency spikes or errors.
 
 ---
 
 ## Contributing
 
-Contributions are welcome. To fix a bug or add a feature:
+We welcome pull requests! Please follow these steps:
 
-1. Open an issue describing the problem or desired functionality.  
-2. Fork the repository and create a branch (`fix/reconnect-bug`, `feat/new-auth`, etc.).  
-3. Write clean, readable code and include tests when applicable.  
-4. Reference the issue in your pull‑request description.  
+1. **Open an issue** to discuss a bug or feature.
+2. **Fork** the repository and create a feature branch (`feat/add-auth`) or bug‑fix branch (`fix/reconnect`).
+3. **Write tests** where applicable and ensure all tests pass.
+4. **Submit a PR**, referencing the issue in the title/description.
+5. **Review** – maintainers will review, suggest changes, and merge.
 
-Please keep changes focused and discuss larger modifications with the maintainers before opening a PR.
+Keep changes focused and refrain from large, unrelated modifications.
 
 ---
 
@@ -99,11 +188,15 @@ Please keep changes focused and discuss larger modifications with the maintainer
 
 ### 2026‑08‑26
 
-- Added precise millisecond timestamps for disruption logs.  
-- Rendered dashboard latency as a real‑time graph.  
-- Fixed a race condition that could cause premature connection reports, reducing failure rate under high load.  
-- Updated documentation with additional Pro Tips.  
+- Added millisecond‑precision timestamps for disruption logs.
+- Rendered latency as a real‑time graph in the dashboard.
+- Fixed a race condition that caused premature connection reports under high load.
+- Updated documentation with additional usage tips.
 
----  
+---
 
-*Maintained by the tunnel team.*
+## License
+
+MIT © tunnel team
+
+---

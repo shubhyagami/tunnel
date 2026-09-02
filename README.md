@@ -1,69 +1,55 @@
 # Tunnel
 
-> A lightweight, high‑performance HTTP/WebSocket tunnel that exposes local services to the public internet over a single port.
+A lightweight, high‑performance HTTP/WebSocket tunnel that exposes local services to the public Internet over a single port.
 
-**Badges**
+## Badges
 
-[![Node.js ≥ 16](https://img.shields.io/badge/node-%3E%3D16-brightgreen.svg)](https://nodejs.org)  
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)  
-[![CI Build](https://img.shields.io/github/actions/workflow/status/shubhyagami/tunnel/.github/workflows/ci.yml?branch=main&label=Build)](https://github.com/shubhyagami/tunnel/actions)  
-[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/shubhyagami/tunnel/pulls)
+[![Node.js ≥ 18](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/shubhyagami/0d2e5b6a9cd3d5cd1f7b8b18b6e3a9f6/raw/continuous-node.json&style=flat-square)](https://nodejs.org)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
+[![CI Build](https://img.shields.io/github/actions/workflow/status/shubhyagami/tunnel/.github/workflows/ci.yml?branch=main&label=Build&style=flat-square)](https://github.com/shubhyagami/tunnel/actions)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://github.com/shubhyagami/tunnel/pulls)
 
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Quickstart](#quickstart)
-- [Installation](#installation)
-- [Running the server](#running-the-server)
-- [Exposing a local service](#exposing-a-local-service)
-- [Dashboard](#dashboard)
-- [Deployment](#deployment)
-- [Configuration](#configuration)
-- [Tips & FAQ](#tips--faq)
-- [Contributing](#contributing)
-- [Changelog](#changelog)
-- [License](#license)
+> **TL;DR** – Run `npm install && npm run build && npm start` to host a server, then in another terminal expose a local service with `node src/client.js --port <local-port> --subdomain <name>`.
 
 ---
 
-## Overview
+## Features
 
-Tunnel allows you to safely expose a local HTTP or WebSocket server to the public internet with only one open port. It is suited for local development, demonstration, and quick deployment on Render.com or other hosting providers.
-
-Key characteristics:
-
-- **Multiplexed proxy** – multiple tunnels share a single socket, with Nagle’s algorithm disabled for low latency.
-- **Dashboard UI** – real‑time traffic and latency monitoring on `localhost:4040`.
-- **Basic Auth** – optional HTTP authentication for added security.
-- **Reconnect logic** – automatic reconnection with exponential back‑off and detailed disruption logs.
+* **Single‑port multiplexing** – many tunnels share the same TCP port.
+* **WebSocket + HTTP support** – works for both protocols.
+* **Low‑latency** – Nagle’s algorithm disabled, configurable keep‑alive.
+* **Real‑time dashboard** – traffic, latency, and connection status at `localhost:4040`.
+* **Basic authentication** – optional `user:pass` for added security.
+* **Automatic reconnection** – exponential back‑off with detailed logs.
 
 ---
 
-## Quickstart
+## Getting Started
 
 ```bash
-# Clone the repo
+# 1. Clone
 git clone https://github.com/shubhyagami/tunnel.git
 cd tunnel
 
-# Install dependencies and build
+# 2. Install + build
 npm ci
 npm run build
 
-# Start the tunnel server (default port 8080)
+# 3. Start the server (port 8080 by default)
 npm start
 
-# In another terminal, expose a local service
-python -m http.server 3000      # or any local server
+# 4. In a separate terminal, expose a local HTTP server
+python -m http.server 3000
 node src/client.js --port 3000 --subdomain my-app
+```
 
-# Access the service at
+The tunnel will output a URL like:
+
+```
 http://my-app.localhost:8080
 ```
 
-The dashboard is available at `http://localhost:4040`.
+Open that in a browser or call it from your code. The dashboard is available at `http://localhost:4040`.
 
 ---
 
@@ -74,86 +60,91 @@ npm install
 npm run build
 ```
 
-- `npm install` – Installs all dependencies.
-- `npm run build` – Transpiles TypeScript and bundles the code.
+* `npm install` – Installs all dependencies.
+* `npm run build` – Transpiles TypeScript and bundles the application.
 
-## Running the server
+---
+
+## Running the Server
 
 ```bash
 npm start
 ```
 
-The server starts on port `8080` by default. You can change the port with the `--port` flag:
+The server listens on `8080` by default. Change the port with the `--port` flag:
 
 ```bash
 npm start -- --port 9090
 ```
 
+### TLS / HTTPS
+
+To serve over TLS, drop the `--tls` flag and point the client at `wss://<host>`.
+
 ---
 
-## Exposing a local service
+## Exposing a Local Service
 
-1. **Start your local server** (e.g., `python -m http.server 3000`).
-2. **Run the client** specifying the local port and a unique subdomain:
+1. **Start your local backend**
+
+   ```bash
+   python -m http.server 3000   # or any other local server
+   ```
+
+2. **Run the client**
 
    ```bash
    node src/client.js --port 3000 --subdomain my-app
    ```
 
-3. **Visit the URL** shown in the client log, e.g.:
+3. **Navigate to the URL** printed by the client, e.g. `http://my-app.localhost:8080`.
 
-   ```
-   http://my-app.localhost:8080
-   ```
-
-### Subdomains
-
-Each tunnel is identified by a subdomain. Use a unique subdomain per environment (dev, staging, production) to avoid collisions.
+> **Tip** – Choose a unique subdomain per environment (`dev`, `staging`, `prod`) to avoid collisions.
 
 ---
 
 ## Dashboard
 
-The dashboard runs on `localhost:4040` and shows:
+While the server is running, visit `http://localhost:4040`. It shows:
 
-- Live traffic statistics
-- Latency graphs
-- Connection status
-
-Open the address in your browser while the server is running.
+* Live traffic counters
+* Latency charts
+* Connection health
 
 ---
 
 ## Deployment
 
-Render.com can deploy the server automatically using the provided `render.yaml`. For any other provider, copy the built artifacts and run the server as above.
+The server can be deployed to any host that allows inbound TCP connections. Render.com provides a ready‑to‑use `render.yaml`.
 
 ### Render.com
 
-1. Create a Render.com Blueprint linked to this repository.
-2. Add the `tunnel` service; Render will read `render.yaml`, build, and deploy.
-3. After deployment, note the public URL (e.g., `wss://tunnel.example.com`).
-4. Point your client to the production host:
+1. Create a Render.com Blueprint linked to this repo.
+2. Add a `tunnel` service; Render will read `render.yaml`, build and deploy.
+3. Note the public URL, e.g., `wss://tunnel.example.com`.
+4. Run the client pointing to that host:
 
    ```bash
    node src/client.js --host tunnel.example.com --port 3000 --subdomain my-app
    ```
 
+Deployments to other providers follow the same pattern: copy the built artifacts and run `npm start`.
+
 ---
 
 ## Configuration
 
-The client accepts the following flags:
+The client supports the following command‑line options:
 
-| Flag | Description | Default |
-|------|-------------|---------|
-| `--host` | Tunnel server hostname (defaults to `localhost`) | |
-| `--port` | Local server port to expose | required |
-| `--subdomain` | Unique subdomain for the tunnel | required |
-| `--keepalive` | Send periodic ping frames to keep the connection alive | false |
-| `--auth` | Basic Auth credentials in `user:pass` format | none |
+| Flag          | Description                                 | Default |
+|---------------|---------------------------------------------|---------|
+| `--host`      | Tunnel server hostname (e.g. `localhost` or a public URL) | `localhost` |
+| `--port`      | Local server port to expose                 | **required** |
+| `--subdomain` | Unique subdomain for the tunnel              | **required** |
+| `--keepalive` | Send periodic ping frames to keep the connection alive | `false` |
+| `--auth`      | Basic Auth credentials (`user:pass`)        | none |
 
-Example with keep‑alive:
+**Example with keep‑alive**
 
 ```bash
 node src/client.js --port 3000 --subdomain my-app --keepalive
@@ -161,26 +152,26 @@ node src/client.js --port 3000 --subdomain my-app --keepalive
 
 ---
 
-## Tips & FAQ
+## FAQ & Tips
 
-- **Avoid subdomain conflicts** by using environment‑specific names (e.g., `dev-myapp`, `staging-myapp`).
-- **Secure sensitive services** with Basic Auth: `--auth user:password`.
-- **Stable connections**: enable `--keepalive` if you notice frequent disconnects, especially over shared networks.
-- **Monitoring**: keep the Dashboard open during the initial run to spot latency spikes or errors.
+* **Subdomain conflicts** – Use environment‑specific names (`dev-myapp`, `staging-myapp`).  
+* **Securing sensitive services** – Provide credentials with `--auth user:password`.  
+* **Stability over flaky networks** – Enable `--keepalive`.  
+* **Monitoring** – Keep the dashboard open to catch latency spikes or errors early.
 
 ---
 
 ## Contributing
 
-We welcome pull requests! Please follow these steps:
+Pull requests are welcome! Please follow these steps:
 
-1. **Open an issue** to discuss a bug or feature.
-2. **Fork** the repository and create a feature branch (`feat/add-auth`) or bug‑fix branch (`fix/reconnect`).
-3. **Write tests** where applicable and ensure all tests pass.
-4. **Submit a PR**, referencing the issue in the title/description.
-5. **Review** – maintainers will review, suggest changes, and merge.
+1. Open an issue to discuss your idea or bug.
+2. Fork the repository and create a feature branch (`feat/...`) or bug‑fix branch (`fix/...`).
+3. Add tests if applicable; run `npm test` to ensure all tests pass.
+4. Submit a PR, referencing the issue number in the title or body.
+5. Await review, respond to feedback, and merge.
 
-Keep changes focused and refrain from large, unrelated modifications.
+Focus on small, well‑scoped changes and keep commit history clean.
 
 ---
 
@@ -188,10 +179,12 @@ Keep changes focused and refrain from large, unrelated modifications.
 
 ### 2026‑08‑26
 
-- Added millisecond‑precision timestamps for disruption logs.
-- Rendered latency as a real‑time graph in the dashboard.
-- Fixed a race condition that caused premature connection reports under high load.
-- Updated documentation with additional usage tips.
+* Millisecond‑precision timestamps in disruption logs.
+* Real‑time latency graphs added to the dashboard.
+* Fixed race condition causing premature connection reports under load.
+* Updated documentation with additional usage tips.
+
+*You can find older releases in the `Releases` tab.*
 
 ---
 

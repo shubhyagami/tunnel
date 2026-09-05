@@ -1,21 +1,40 @@
 # tunnel
-
 A lightweight, high‑performance HTTP/WebSocket tunnel that exposes local services to the public Internet over a single TCP port.
+
+![License](https://img.shields.io/badge/License-MIT-blue.svg)
+![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)
 
 ---
 
-## 📦 Quick Start
+## Table of Contents
+- [Quick Start](#quick-start)
+- [Overview](#overview)
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Server](#server)
+- [Client](#client)
+- [Dashboard](#dashboard)
+- [Deployment](#deployment)
+- [FAQ](#faq)
+- [Contributing](#contributing)
+- [Changelog](#changelog)
+- [License](#license)
+
+---
+
+## Quick Start
 
 ```bash
 # Clone the repository
 git clone https://github.com/shubhyagami/tunnel.git
 cd tunnel
 
-# Install dependencies and build
+# Install and build
 npm ci
 npm run build
 
-# Start the server (default on port 8080)
+# Start the server
 npm start
 
 # In another terminal, expose a local service
@@ -30,43 +49,64 @@ http://my-app.localhost:8080
 
 Open that address in a browser or use it in your client code. The real‑time dashboard is available at `http://localhost:4040`.
 
+---
 
+## Overview
 
-## 🌍 Overview
-
-`tunnel` forwards traffic from one globally reachable TCP port to one or more local services, optionally over WebSocket. It works with:
+`tunnel` forwards traffic from a globally reachable TCP port to one or more local services, optionally over WebSocket. It works with:
 
 - Any HTTP server
 - Any TCP‑based service (SSH, Redis, custom protocols, etc.)
 
-**Key features**
-
-- **Single‑port multiplexing** – many tunnels share one listening port.
-- **Low latency** – Nagle’s algorithm disabled; keep‑alive configurable.
-- **Real‑time metrics** – dashboard on `localhost:4040`.
-- **Basic authentication** – secure tunnels with `user:pass`.
-- **Automatic reconnection** – exponential back‑off and detailed logs.
+The server accepts multiple tunnels on a single listening port, each identified by a unique sub‑domain.
 
 ---
 
-## ⚙️ Prerequisites
+## Features
+
+- **Single‑port multiplexing** – many tunnels share one listening port
+- **Low latency** – Nagle’s algorithm disabled, configurable keep‑alive
+- **Real‑time metrics** – dashboard on `localhost:4040`
+- **Basic authentication** – optional `user:pass` protection
+- **Automatic reconnection** – exponential back‑off, detailed logs
+- **HTTPS / WSS support** – self‑signed certificates via `--tls`
+
+---
+
+## Prerequisites
 
 - **Node.js ≥ 18**
 - A publicly reachable TCP port (default `8080`)
 
+---
 
+## Installation
 
-## 🚀 Server
+```bash
+npm ci
+npm run build
+```
 
-Run the server with `npm start`.  
+The `dist/` folder contains compiled JavaScript ready for production.
+
+---
+
+## Server
+
+Run the server with:
+
+```bash
+npm start
+```
+
 Optional flags (append after `--`):
 
-| Flag      | Description                                     | Default |
-|----------|--------------------------------------------------|--------|
-| `--port` | TCP port the server listens on                    | `8080` |
-| `--tls`  | Generate a self‑signed TLS cert and use HTTPS  | `false`|
-| `--host` | Bind to a specific hostname or IP               | `0.0.0.0`|
-| `--auth` | Basic Auth credentials (`user:pass`) for all tunnels | none |
+| Flag      | Description                                    | Default |
+|-----------|------------------------------------------------|---------|
+| `--port`  | Port to listen on                             | `8080`  |
+| `--tls`   | Generate a self‑signed TLS cert and use HTTPS | `false` |
+| `--host`  | Bind to a specific hostname or IP             | `0.0.0.0` |
+| `--auth`  | Basic Auth credentials (`user:pass`) for all tunnels | none |
 
 **Example**
 
@@ -76,9 +116,9 @@ npm start -- --port 9090 --tls
 
 The server logs the public URL for each tunnel as it is established.
 
+---
 
-
-## 🔌 Client
+## Client
 
 The client forwards a local TCP port to the tunnel server.
 
@@ -91,40 +131,40 @@ node dist/client.js \
   [--auth user:pass]
 ```
 
-| Flag        | Description                                      | Required |
-|------------|--------------------------------------------------|----------|
-| `--host`   | Tunnel server hostname or IP                    | defaults to `localhost` |
-| `--port`   | Local port to expose                            | **yes** |
-| `--subdomain` | Desired subdomain for the tunnel              | **yes** |
+| Flag        | Description                                             | Required |
+|-------------|---------------------------------------------------------|----------|
+| `--host`    | Tunnel server hostname or IP                            | defaults to `localhost` |
+| `--port`    | Local port to expose                                   | **yes**  |
+| `--subdomain` | Desired sub‑domain for the tunnel                    | **yes**  |
 | `--keepalive` | Send periodic ping frames to keep the connection alive | no |
-| `--auth`   | Basic Auth credentials (`user:pass`)          | no |
+| `--auth`    | Basic Auth credentials (`user:pass`)                 | no |
 
 The client prints the public URL once the tunnel is ready.
 
+---
 
+## Dashboard
 
-## 📊 Dashboard
-
-While the server is running, visit:
+When the server is running, visit:
 
 ```
 http://localhost:4040
 ```
 
-You’ll see:
+The dashboard displays:
 
 - Traffic counters
 - Latency charts
 - Connection health indicators
 
-The dashboard updates automatically in real time.
+Updates are pushed automatically in real time.
 
+---
 
-
-## 🌐 Deployment
+## Deployment
 
 `tunnel` can run on any host that accepts inbound TCP connections.  
-Below is a quick example for Render, but the same steps apply to other providers (Heroku, DigitalOcean, etc.).
+Below is a minimal Render example; the same steps apply to Heroku, DigitalOcean, etc.
 
 ### Render.com
 
@@ -137,9 +177,9 @@ Below is a quick example for Render, but the same steps apply to other providers
 node dist/client.js --host tunnel.example.com --port 3000 --subdomain my-app
 ```
 
+---
 
-
-## ❓ FAQ
+## FAQ
 
 | Question | Answer |
 |----------|--------|
@@ -149,20 +189,20 @@ node dist/client.js --host tunnel.example.com --port 3000 --subdomain my-app
 | Why does the connection drop? | Network instability may cause brief drops. Enable `--keepalive` to mitigate. |
 | How many concurrent tunnels are allowed? | Unlimited (subject to system limits). Each uses its own sub‑domain. |
 
+---
 
-
-## 🤝 Contributing
+## Contributing
 
 Pull requests are welcome! Please follow these steps:
 
-1. Fork the repo and create a feature branch (e.g. `feat/...` or `fix/...`).  
+1. Fork the repository and create a feature branch (`feat/...` or `fix/...`).  
 2. Add tests if applicable and run `npm test`.  
 3. Submit a PR that references any related issue.  
 4. Keep commits small, focused, and descriptive.
 
+---
 
-
-## 📅 Changelog (excerpt)
+## Changelog (excerpt)
 
 **2026‑08‑26**
 
@@ -171,14 +211,10 @@ Pull requests are welcome! Please follow these steps:
 - Fixed race condition causing premature connection reports.  
 - Updated documentation with new usage tips.
 
+---
 
-
-## 📜 License
+## License
 
 [MIT](LICENSE) © tunnel team
 
-
-
---- 
-
-![License](https://img.shields.io/badge/License-MIT-blue.svg)
+---

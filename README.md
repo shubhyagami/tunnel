@@ -1,43 +1,27 @@
 # tunnel
+
 A lightweight, high‑performance HTTP/WebSocket tunnel that exposes local services to the public Internet over a single TCP port.
 
-![License](https://img.shields.io/badge/License-MIT-blue.svg)
-![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org)
 
 ---
 
-## Table of Contents
-- [Quick Start](#quick-start)
-- [Overview](#overview)
-- [Features](#features)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Server](#server)
-- [Client](#client)
-- [Dashboard](#dashboard)
-- [Deployment](#deployment)
-- [FAQ](#faq)
-- [Contributing](#contributing)
-- [Changelog](#changelog)
-- [License](#license)
-
----
-
-## Quick Start
+## 📦 Getting Started
 
 ```bash
-# Clone the repository
+# Clone & install
 git clone https://github.com/shubhyagami/tunnel.git
 cd tunnel
-
-# Install and build
 npm ci
+
+# Build the TypeScript sources
 npm run build
 
-# Start the server
+# Start the server (defaults to port 8080)
 npm start
 
-# In another terminal, expose a local service
+# In a new terminal, expose a local service
 node dist/client.js --port 3000 --subdomain my-app
 ```
 
@@ -47,68 +31,65 @@ You’ll receive a public URL, e.g.:
 http://my-app.localhost:8080
 ```
 
-Open that address in a browser or use it in your client code. The real‑time dashboard is available at `http://localhost:4040`.
+Open that address in a browser or use it in your code. The real‑time dashboard is available at `http://localhost:4040`.
 
 ---
 
-## Overview
+## 🧩 Overview
 
-`tunnel` forwards traffic from a globally reachable TCP port to one or more local services, optionally over WebSocket. It works with:
-
-- Any HTTP server
-- Any TCP‑based service (SSH, Redis, custom protocols, etc.)
-
-The server accepts multiple tunnels on a single listening port, each identified by a unique sub‑domain.
+`tunnel` forwards traffic from a globally reachable TCP port to one or more local services, optionally over WebSocket.  
+* Works with any HTTP server or TCP‑based service (SSH, Redis, custom protocols, etc.).  
+* The server accepts multiple tunnels on a single listening port, each identified by a unique sub‑domain.
 
 ---
 
-## Features
+## ✨ Features
 
-- **Single‑port multiplexing** – many tunnels share one listening port
-- **Low latency** – Nagle’s algorithm disabled, configurable keep‑alive
-- **Real‑time metrics** – dashboard on `localhost:4040`
-- **Basic authentication** – optional `user:pass` protection
-- **Automatic reconnection** – exponential back‑off, detailed logs
-- **HTTPS / WSS support** – self‑signed certificates via `--tls`
-
----
-
-## Prerequisites
-
-- **Node.js ≥ 18**
-- A publicly reachable TCP port (default `8080`)
+* **Single‑port multiplexing** – many tunnels share one listening port.  
+* **Low latency** – Nagle’s algorithm disabled; configurable keep‑alive.  
+* **Real‑time metrics** – dashboard at `localhost:4040` with traffic counters, latency charts, and connection health.  
+* **Basic authentication** – optional `user:pass` protection for all tunnels.  
+* **Automatic reconnection** – exponential back‑off with detailed logs.  
+* **HTTPS / WSS support** – self‑signed certificates via `--tls`.
 
 ---
 
-## Installation
+## ⚙️ Prerequisites
+
+* **Node.js ≥18**  
+* A publicly reachable TCP port (default `8080`)
+
+---
+
+## 📥 Installation
 
 ```bash
-npm ci
+npm ci      # Install dependencies
 npm run build
 ```
 
-The `dist/` folder contains compiled JavaScript ready for production.
+The `dist/` folder contains the compiled JavaScript ready for production.
 
 ---
 
-## Server
+## ▶️ Server
 
-Run the server with:
+Start the server with:
 
 ```bash
 npm start
 ```
 
-Optional flags (append after `--`):
+**Optional flags** (pass after `--`):
 
-| Flag      | Description                                    | Default |
-|-----------|------------------------------------------------|---------|
-| `--port`  | Port to listen on                             | `8080`  |
-| `--tls`   | Generate a self‑signed TLS cert and use HTTPS | `false` |
-| `--host`  | Bind to a specific hostname or IP             | `0.0.0.0` |
-| `--auth`  | Basic Auth credentials (`user:pass`) for all tunnels | none |
+| Flag      | Description                                            | Default    |
+|-----------|--------------------------------------------------------|------------|
+| `--port`  | TCP port to listen on                                  | `8080`     |
+| `--tls`   | Generate a self‑signed TLS cert and use HTTPS          | `false`    |
+| `--host`  | Bind to a specific hostname or IP                     | `0.0.0.0`  |
+| `--auth`  | Basic Auth credentials (`user:pass`) for all tunnels | none       |
 
-**Example**
+*Example*
 
 ```bash
 npm start -- --port 9090 --tls
@@ -118,9 +99,9 @@ The server logs the public URL for each tunnel as it is established.
 
 ---
 
-## Client
+## 🧑‍💻 Client
 
-The client forwards a local TCP port to the tunnel server.
+Expose a local TCP port to the tunnel server:
 
 ```bash
 node dist/client.js \
@@ -131,40 +112,39 @@ node dist/client.js \
   [--auth user:pass]
 ```
 
-| Flag        | Description                                             | Required |
-|-------------|---------------------------------------------------------|----------|
-| `--host`    | Tunnel server hostname or IP                            | defaults to `localhost` |
-| `--port`    | Local port to expose                                   | **yes**  |
-| `--subdomain` | Desired sub‑domain for the tunnel                    | **yes**  |
-| `--keepalive` | Send periodic ping frames to keep the connection alive | no |
-| `--auth`    | Basic Auth credentials (`user:pass`)                 | no |
+| Flag        | Description                                          | Required |
+|-------------|------------------------------------------------------|-----------|
+| `--host`    | Tunnel server hostname or IP                        | defaults to `localhost` |
+| `--port`    | Local port to expose                               | **yes**   |
+| `--subdomain` | Desired sub‑domain for the tunnel                | **yes**   |
+| `--keepalive` | Send periodic ping frames to keep the connection alive | no  |
+| `--auth`    | Basic Auth credentials (`user:pass`)                | no        |
 
 The client prints the public URL once the tunnel is ready.
 
 ---
 
-## Dashboard
+## 📊 Dashboard
 
-When the server is running, visit:
+When the server is running, open:
 
 ```
 http://localhost:4040
 ```
 
-The dashboard displays:
+The dashboard shows:
 
-- Traffic counters
-- Latency charts
-- Connection health indicators
+* Traffic counters
+* Latency charts
+* Connection health indicators
 
 Updates are pushed automatically in real time.
 
 ---
 
-## Deployment
+## 🛠️ Deployment
 
-`tunnel` can run on any host that accepts inbound TCP connections.  
-Below is a minimal Render example; the same steps apply to Heroku, DigitalOcean, etc.
+`tunnel` can run on any host that accepts inbound TCP connections.
 
 ### Render.com
 
@@ -177,9 +157,11 @@ Below is a minimal Render example; the same steps apply to Heroku, DigitalOcean,
 node dist/client.js --host tunnel.example.com --port 3000 --subdomain my-app
 ```
 
+The same steps apply to other providers (Heroku, DigitalOcean, etc.).
+
 ---
 
-## FAQ
+## ❓ FAQ
 
 | Question | Answer |
 |----------|--------|
@@ -191,29 +173,29 @@ node dist/client.js --host tunnel.example.com --port 3000 --subdomain my-app
 
 ---
 
-## Contributing
+## 🤝 Contributing
 
 Pull requests are welcome! Please follow these steps:
 
 1. Fork the repository and create a feature branch (`feat/...` or `fix/...`).  
 2. Add tests if applicable and run `npm test`.  
-3. Submit a PR that references any related issue.  
+3. Submit a PR that references the related issue.  
 4. Keep commits small, focused, and descriptive.
 
 ---
 
-## Changelog (excerpt)
+## 📗 Changelog (excerpt)
 
 **2026‑08‑26**
 
-- Added millisecond timestamps to disruption logs.  
-- Introduced latency graphs on the dashboard.  
-- Fixed race condition causing premature connection reports.  
-- Updated documentation with new usage tips.
+* Added millisecond timestamps to disruption logs.  
+* Introduced latency graphs on the dashboard.  
+* Fixed race condition causing premature connection reports.  
+* Updated documentation with new usage tips.
 
 ---
 
-## License
+## 📄 License
 
 [MIT](LICENSE) © tunnel team
 

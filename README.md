@@ -1,97 +1,104 @@
 # tunnel
 
-*A lightweight, high‑performance HTTP/WebSocket tunnel that exposes local services to the public Internet over a single TCP port.*
+A lightweight, high‑performance HTTP / WebSocket tunnel that exposes local services on a single public TCP port.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Node.js ≥18](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org)
-[![GitHub CI](https://github.com/shubhyagami/tunnel/actions/workflows/ci.yml/badge.svg)](https://github.com/shubhyagami/tunnel/actions)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![Node.js ≥18](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org)
+[![CI](https://github.com/shubhyagami/tunnel/actions/workflows/ci.yml/badge.svg)](https://github.com/shubhyagami/tunnel/actions)
 
-> **TL;DR** – Expose any local TCP service to a public URL with a single command.
+> **TL;DR** – Expose any local TCP service to a public URL with one command.
 
 ---
 
-## 🚀 Getting Started
+## Table of contents
+
+- [Overview](#overview)
+- [Quick start](#quick-start)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Server](#server)
+- [Client](#client)
+- [Dashboard](#dashboard)
+- [Deployment](#deployment)
+- [FAQ](#faq)
+- [Contributing](#contributing)
+- [Changelog](#changelog)
+- [License](#license)
+
+---
+
+## Overview
+
+`tunnel` multiplexes many TCP tunnels over a single listening port.  
+Each tunnel is identified by a unique sub‑domain, so you can expose multiple services without opening additional ports. The tunnel forwards traffic either over plain TCP or WebSocket (`wss://`) when TLS is enabled. Basic authentication protects all tunnels with a single credential.
+
+---
+
+## Quick start
 
 ```bash
-# Clone the repository
+# Clone and build
 git clone https://github.com/shubhyagami/tunnel.git
 cd tunnel
-
-# Install deps and compile the TS source
 npm ci
 npm run build
 
-# Start the server (defaults to port 8080)
+# Run the server (port 8080, no TLS)
 npm start
 
-# In another terminal, expose a local service
+# In another shell, expose a local service
 node dist/client.js --port 3000 --subdomain my-app
 ```
 
-You’ll see a public URL in the client output, e.g. `http://my-app.localhost:8080`.  
-The real‑time dashboard is available at `http://localhost:4040`.
+The client prints a public URL such as `http://my-app.localhost:8080`.  
+While the server is running, visit `http://localhost:4040` to view the real‑time dashboard.
 
 ---
 
-## 🔧 Features
+## Prerequisites
 
-| Feature | Description |
-|---------|-------------|
-| **Single‑port multiplexing** | Many tunnels share one listening port, identified by a unique sub‑domain. |
-| **Zero configuration** | Works with any HTTP or TCP service (SSH, Redis, custom protocol, …). |
-| **WebSocket support** | Forward traffic over a secure WebSocket (`wss://`) when TLS is enabled. |
-| **Optional keep‑alive** | Periodic ping frames keep idle connections alive. |
-| **Basic auth** | Protect all tunnels with a single `user:pass`. |
-| **Real‑time dashboard** | View traffic counters, latency charts and connection health via Server‑Sent Events. |
+- **Node.js 18 or newer** (no compilation needed for the server, but the client uses the bundled JavaScript).
+- A publicly reachable TCP port (default `8080`).  
+  In cloud deployments, map the server port to the host’s HTTP port or use the provided cloud‑specific configuration files.
 
 ---
 
-## 📦 Prerequisites
-
-- Node.js **≥18**
-- A publicly reachable TCP port (default `8080`)
-
----
-
-## 🏗️ Installation
+## Installation
 
 ```bash
 npm ci          # Install dependencies
-npm run build   # Compile TypeScript → dist/
+npm run build   # Compile TypeScript to ./dist/
 ```
 
-All production‑ready code resides in the `dist/` directory.
+All production code lives in the `dist/` directory.
 
 ---
 
-## 🌐 Server
+## Server
 
 Start the server with:
 
 ```bash
-npm start
+npm start       # Runs ./dist/server.js
 ```
 
-**Flags**
+### Flags
 
 | Flag      | Description                                          | Default     |
 |-----------|------------------------------------------------------|-------------|
 | `--port`  | TCP port to listen on                                | `8080`      |
 | `--tls`   | Generate a self‑signed cert and serve HTTPS         | `false`     |
 | `--host`  | Bind to a specific IP or hostname                   | `0.0.0.0`   |
-| `--auth`  | Basic Auth credentials (`user:pass`) for all tunnels | none        |
+| `--auth`  | Basic auth credentials (`user:pass`) for all tunnels | none        |
 
-Example:
+> **Note:** Flags after `--` are passed to the underlying `node` process.  
+> Example: `npm start -- --port 9090 --tls`.
 
-```bash
-npm start -- --port 9090 --tls
-```
-
-The server logs the public URL for each tunnel as it is established.
+The server writes the public URL for each new tunnel to stdout.
 
 ---
 
-## 🔌 Client
+## Client
 
 Expose a local TCP port to the server:
 
@@ -105,82 +112,99 @@ node dist/client.js \
 ```
 
 | Flag          | Description                                               | Required |
-|---------------|-----------------------------------------------------------|---------|
-| `--host`      | Tunnel server hostname or IP                               | no      |
+|---------------|-----------------------------------------------------------|----------|
+| `--host`      | Tunnel server hostname or IP                               | no       |
 | `--port`      | Local port to expose                                      | **yes** |
 | `--subdomain` | Desired sub‑domain for the tunnel                         | **yes** |
-| `--keepalive` | Send periodic ping frames to keep the connection alive    | no      |
-| `--auth`      | Basic Auth credentials (`user:pass`)                      | no      |
+| `--keepalive` | Send periodic ping frames to keep the connection alive    | no       |
+| `--auth`      | Basic Auth credentials (`user:pass`)                      | no       |
 
 The client prints the public URL once the tunnel is ready.
 
 ---
 
-## 📊 Dashboard
+## Dashboard
 
-While the server runs, visit `http://localhost:4040` to see:
+While the server is running, navigate to `http://localhost:4040`.  
+The dashboard shows:
 
-- Traffic counters
+- Total traffic per tunnel
 - Latency charts
 - Connection health indicators
 
-Updates are pushed in real time via Server‑Sent Events.
+Updates are streamed live via Server‑Sent Events.
 
 ---
 
-## ☁️ Deployment
+## Deployment
 
-`tunnel` works on any host that accepts inbound TCP connections.
+`tunnel` runs on any host that accepts inbound TCP connections. The following are minimal examples; adapt the host‑specific instructions as needed.
 
 ### Render.com
 
-1. Create a new Render service that pulls from this repo.  
-2. Add the provided `render.yaml` (exists in the repo).  
-3. Deploy – a public hostname (e.g. `tunnel.example.com`) will be assigned.  
-4. Run the client:  
+1. Create a new Render service pulling from this repo.  
+2. Add the provided `render.yaml` (see repo).  
+3. Deploy – Render will assign a public hostname (e.g., `tunnel.example.com`).  
+4. Run the client:
 
 ```bash
 node dist/client.js --host tunnel.example.com --port 3000 --subdomain my-app
 ```
 
-Other providers (Heroku, Fly.io, DigitalOcean, etc.) follow the same pattern with minimal changes.
+### Fly.io
+
+```bash
+fly launch --private-network
+fly apps create tunnel
+fly launch  # map port 8080 to host
+fly secrets set AUTH_USER=alice AUTH_PASS=secret
+fly deploy
+fly launch  # expose port 8080
+```
+
+### Other Providers
+
+Most other PaaS platforms (Heroku, DigitalOcean App Platform, etc.) follow the same pattern: expose port 8080 and run the server; then point the client at the assigned hostname.
 
 ---
 
-## ❓ FAQ
+## FAQ
 
 | Question | Answer |
 |----------|--------|
-| **How do I avoid sub‑domain collisions?** | Use environment‑specific names, e.g. `dev-myapp`, `staging-myapp`, `prod-myapp`. |
-| **Is TLS required?** | No. Use `--tls` on the server and `wss://` on the client if you want encrypted traffic. |
-| **Can I tunnel non‑HTTP services?** | Yes. Any TCP service will work; the tunnel simply forwards raw traffic. |
-| **Why do connections drop?** | Network instability can cause brief drops. Enabling `--keepalive` helps keep connections alive. |
-| **How many concurrent tunnels are allowed?** | Unlimited, limited only by system resources and the number of sub‑domains. |
+| **How do I avoid sub‑domain collisions?** | Use environment‑specific prefixes, e.g. `dev-myapp`, `staging-myapp`, `prod-myapp`. |
+| **Is TLS required?** | No. Use `--tls` on the server and `wss://` on the client if you need encrypted traffic. |
+| **Can I tunnel non‑HTTP services?** | Yes. The tunnel forwards raw TCP data, so any service that listens on a TCP port will work. |
+| **Why do connections drop?** | Network instability can cause brief disconnects. Enabling `--keepalive` sends periodic pings to keep the TCP/WS connection alive. |
+| **How many tunnels can I run concurrently?** | Unlimited, limited only by system resources and the number of sub‑domains you can register. |
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
-Pull requests are welcome! Please:
+Pull requests are welcome. Please follow these guidelines:
 
 1. Fork the repository and create a feature branch (`feat/...` or `fix/...`).  
-2. Add tests if applicable and run `npm test`.  
-3. Submit a PR that references the related issue.  
-4. Keep commits focused, descriptive, and small.
+2. Add tests if the change affects functionality.  
+3. Run `npm test` to ensure the suite passes.  
+4. Submit a PR that references the related issue.  
+5. Keep commits focused and descriptive.
 
 ---
 
-## 📚 Changelog
+## Changelog
 
 **2026‑08‑26**
 
 - Added millisecond timestamps to disruption logs.  
 - Introduced latency graphs on the dashboard.  
-- Fixed race condition causing premature connection reports.  
+- Fixed a race condition that caused premature connection reports.  
 - Updated docs with new usage tips.
 
 ---
 
-## 📜 License
+## License
 
-[MIT](LICENSE) © tunnel team
+[MIT](./LICENSE) © tunnel team
+
+---

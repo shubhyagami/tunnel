@@ -1,57 +1,39 @@
+[K[2m  [2mmodel deepseek-ai/deepseek-v4.1-flash failed, trying next...[0m[0m
+[K[2m  [2mmodel openai/gpt-oss-20b failed, trying next...[0m[0m
+[K[2m  [2mmodel openai/gpt-oss-120b failed, trying next...[0m[0m
 # tunnel
 
-A lightweight, high‑performance TCP tunnel that exposes local services behind a single public port.
+A lightweight, high-performance TCP tunnel that exposes local services behind a single public port.
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![Node.js ≥18](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org)
+[![Node.js ≥18](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org)
 [![CI](https://github.com/shubhyagami/tunnel/actions/workflows/ci.yml/badge.svg)](https://github.com/shubhyagami/tunnel/actions)
 
-> **TL;DR** – Expose any local TCP service to a public URL with a single command.
-
----
-
-## Table of contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Getting started](#getting-started)
-  - [Quick start (local)](#quick-start)
-  - [Deploying the server](#deploying-the-server)
-  - [Exposing a local service](#exposing-a-local-service)
-- [Installation](#installation)
-- [Server](#server)
-- [Client](#client)
-- [Dashboard](#dashboard)
-- [FAQ](#faq)
-- [Contributing](#contributing)
-- [Changelog](#changelog)
-- [License](#license)
+> **TL;DR:** Expose any local TCP service to a public URL with a single command.
 
 ---
 
 ## Overview
 
-`tunnel` multiplexes many TCP tunnels over a single listening port. Each tunnel is addressed by a unique sub‑domain, allowing you to expose numerous services without opening additional ports. Traffic can be forwarded over plain TCP or WebSocket (`wss://`) when TLS is enabled. A single pair of credentials protects all tunnels via Basic Authentication.
+`tunnel` multiplexes multiple TCP tunnels over a single listening port. Each tunnel is routed via a unique subdomain, allowing you to expose numerous local services without needing to open additional firewall ports. 
 
----
+Traffic can be forwarded over plain TCP or secured via WebSockets (`wss://`) when TLS is enabled. To ensure security, a single pair of credentials can be used to protect all tunnels via Basic Authentication.
 
 ## Features
 
-- **One‑port multiplexing** – expose many services behind a single TCP socket.
-- **Sub‑domain routing** – each tunnel is reachable at `subdomain.<server-host>:<port>`.
-- **Zero‑agent client** – no server‑side installation on the host you want to expose.
-- **WebSocket and TLS** – secure traffic with `wss://` when `--tls` is enabled.
-- **Basic Auth** – lock down the entire server with one username/password.
-- **Real‑time dashboard** – metrics, latency, and connection health at `http://localhost:4040`.
-- **Keep‑alive** – periodic ping frames keep TCP/WS connections alive on flaky networks.
+- **One-Port Multiplexing:** Host multiple services behind a single TCP socket.
+- **Subdomain Routing:** Reach services at `subdomain.your-server.com:port`.
+- **Zero-Agent Client:** No complex installation required on the host being exposed.
+- **TLS Support:** Secure traffic with `wss://` using the `--tls` flag.
+- **Basic Auth:** Global server-level protection via username/password.
+- **Real-time Dashboard:** Monitor traffic, latency, and health at `http://localhost:4040`.
+- **Connection Keep-alive:** Periodic ping frames to prevent timeouts on unstable networks.
 
 ---
 
-## Getting started
+## Getting Started
 
-Below is a minimal workflow for a local development environment. If you already have a publicly reachable server, skip to **Deploying the server**.
-
-### Quick start (local)
+### 1. Installation
 
 ```bash
 # Clone the repository
@@ -61,156 +43,117 @@ cd tunnel
 # Install dependencies and build
 npm ci
 npm run build
+```
 
-# Start the server (HTTP on 8080, no TLS)
+### 2. Quick Start (Local Development)
+
+To test `tunnel` on your local machine:
+
+**Start the server:**
+```bash
 npm start
+```
 
-# In a separate terminal, expose a local service
+**Expose a local service (in a new terminal):**
+```bash
 node dist/client.js --port 3000 --subdomain my-app
 ```
+The client will provide a public URL, e.g., `http://my-app.localhost:8080`.
 
-The client will print a public URL such as `http://my-app.localhost.tunnel:8080`.  
-While the server is running, the dashboard is accessible at `http://localhost:4040`.
+---
 
-### Deploying the server
+## Deployment & Usage
 
-Deploy `tunnel` on any host that can accept inbound TCP connections (e.g., a VPS, Render, Fly.io, or your own server).
+### Running the Server
+Deploy the server on any VPS or host with public TCP access.
 
 ```bash
-# On the server
-npm ci && npm run build
-npm start -- --port 8080 --tls
+npm start -- --port 8080 --tls --auth admin:password123
 ```
 
-The `--tls` flag generates a self‑signed certificate and serves HTTPS. If you prefer plain TCP, omit the flag.
+**Server Flags:**
+| Flag | Description | Default |
+| :--- | :--- | :--- |
+| `--port` | TCP port to listen on | `8080` |
+| `--tls` | Generate a self-signed cert and serve HTTPS | `false` |
+| `--host` | Bind to a specific IP or hostname | `0.0.0.0` |
+| `--auth` | Basic auth credentials (`user:pass`) | none |
 
-### Exposing a local service
-
-Once the server is reachable, expose a service from any machine that can connect to it:
+### Running the Client
+Connect your local service to the remote server:
 
 ```bash
 node dist/client.js \
   --host tunnel.example.com \
   --port 3000 \
   --subdomain dev-myapp \
-  [--keepalive] \
-  [--auth user:pass]
+  --keepalive \
+  --auth admin:password123
 ```
 
-Replace `tunnel.example.com` with your server’s hostname.  
-The tunnel will be available at `http://dev-myapp.tunnel.example.com:8080`.
-
----
-
-## Installation
-
-```bash
-npm ci            # Install dependencies
-npm run build     # Compile TypeScript → ./dist/
-```
-
-Production code lives in the `dist/` directory.
-
----
-
-## Server
-
-Start the server with:
-
-```bash
-npm start
-```
-
-### Flags
-
-| Flag      | Meaning                                            | Default |
-|-----------|----------------------------------------------------|---------|
-| `--port`  | TCP port to listen on                             | `8080`  |
-| `--tls`   | Generate a self‑signed cert and serve HTTPS       | `false` |
-| `--host`  | Bind to a specific IP or hostname                 | `0.0.0.0` |
-| `--auth`  | Basic auth (`user:pass`) for all tunnels          | none    |
-
-Flags after `--` are passed directly to Node. Example:
-
-```bash
-npm start -- --port 9090 --tls
-```
-
-The server writes the public URL of each new tunnel to `stdout`.
-
----
-
-## Client
-
-Expose a local TCP port to the server:
-
-```bash
-node dist/client.js \
-  --host tunnel.example.com \  # optional (defaults to localhost)
-  --port 3000 \                  # local port to expose
-  --subdomain my-app \           # desired sub‑domain
-  [--keepalive] \                # send periodic ping frames
-  [--auth user:pass]             # optional Basic Auth
-```
-
-The client prints the public URL once the tunnel is ready.
+**Client Flags:**
+| Flag | Description |
+| :--- | :--- |
+| `--host` | The hostname of your `tunnel` server |
+| `--port` | The local TCP port you want to expose |
+| `--subdomain` | The unique identifier for your tunnel |
+| `--keepalive` | Send periodic pings to keep the connection open |
+| `--auth` | Credentials required if the server has `--auth` enabled |
 
 ---
 
 ## Dashboard
 
-While the server is running, visit `http://localhost:4040`.  
-The dashboard shows:
-
-- Traffic per tunnel
-- Latency charts
-- Connection health indicators
-
-Updates are streamed live via Server‑Sent Events.
+Once the server is running, visit `http://localhost:4040` to access the monitoring dashboard. It provides live updates via Server-Sent Events (SSE) for:
+- Active tunnels and their traffic volume.
+- Real-time latency charts.
+- Connection health status.
 
 ---
 
 ## FAQ
 
-| Question | Answer |
-|----------|--------|
-| **How do I avoid sub‑domain collisions?** | Prefix your subdomains with environment or project names (`dev‑myapp`, `staging‑myapp`). |
-| **Is TLS required?** | No. Use `--tls` on the server and `wss://` on the client if you want encryption. |
-| **Can I tunnel non‑HTTP services?** | Yes – the tunnel forwards raw TCP traffic. |
-| **Why do connections drop?** | Network instability can cause brief disconnects. Enabling `--keepalive` mitigates this. |
-| **How many tunnels can I run?** | Unlimited, limited only by system resources and the number of sub‑domains you can register. |
+**How do I avoid subdomain collisions?**
+Use a consistent naming convention, such as prefixing subdomains with your username or project name (e.g., `user1-api`, `user1-web`).
+
+**Is TLS required?**
+No. However, using `--tls` on the server is highly recommended for production to encrypt data in transit.
+
+**Can I tunnel non-HTTP services?**
+Yes. `tunnel` forwards raw TCP traffic, making it compatible with SSH, databases, or any other TCP-based protocol.
+
+**Why are my connections dropping?**
+This is often due to aggressive timeouts on cloud firewalls or routers. Use the `--keepalive` flag on the client to mitigate this.
 
 ---
 
 ## Contributing
 
-Pull requests are welcome. Please follow these steps:
+Contributions are welcome! Please follow these guidelines:
 
-1. Fork the repository and create a feature branch (`feat/...` or `fix/...`).
-2. Add tests if the change affects functionality.
-3. Run `npm test` to ensure the suite passes.
-4. Submit a PR that references the related issue.
-5. Keep commits focused and descriptive.
+1. Fork the repo and create a feature branch (`feat/...` or `fix/...`).
+2. Ensure any new functionality is covered by tests.
+3. Run `npm test` to verify the build.
+4. Submit a PR with a clear description of the changes.
 
 ---
 
 ## Changelog
 
-**2026‑09‑22**
+**2026-09-25**
+- Refined README structure and documentation.
+- Fixed minor typos in client documentation.
 
-- Updated README formatting and syntax.
-- Minor bug fixes in client keep‑alive logic.
-- Improved dashboard latency charts.
+**2026-09-22**
+- Improved client keep-alive logic.
+- Enhanced dashboard latency visualization.
 
-**2026‑08‑26**
-
-- Added millisecond timestamps to disruption logs.
-- Introduced latency graphs on the dashboard.
-- Fixed race condition that caused premature connection reports.
-- Updated docs with new usage tips.
+**2026-08-26**
+- Added millisecond precision to disruption logs.
+- Fixed race condition in connection reporting.
 
 ---
 
 ## License
 
-[MIT](./LICENSE) © tunnel team
+Distributed under the MIT License. See [LICENSE](./LICENSE) for more information.

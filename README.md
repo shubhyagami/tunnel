@@ -1,7 +1,6 @@
-[K[2m  [2mmodel z-ai/glm-5.3-flash failed, trying next...[0m[0m
 # tunnel
 
-A lightweight, high-performance TCP tunnel that exposes local services behind a single public port.
+A lightweight TCP tunnel that exposes local services behind a single public port.
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![Node.js ≥18](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org)
@@ -27,7 +26,7 @@ local service ──▶ client ──▶ server (:8080) ──▶ subdomain.your
 - **Subdomain routing** — reach each service at `subdomain.your-server.com:port`.
 - **Lightweight client** — no agents or daemons; just Node.js and one command.
 - **TLS support** — secure traffic over `wss://` with the `--tls` flag.
-- **Basic Auth** — optional server-wide protection via username/password.
+- **Basic Auth** — optional server-wide protection with a single username/password pair.
 - **Real-time dashboard** — monitor traffic, latency, and tunnel health at `http://localhost:4040`.
 - **Keep-alive** — periodic ping frames to prevent timeouts on unstable networks.
 
@@ -62,22 +61,22 @@ node dist/client.js --port 3000 --subdomain my-app
 
 Your service is now reachable at `http://my-app.localhost:8080`.
 
-## Deployment and Usage
+## Usage
 
 ### Server
 
-Deploy on any VPS or host with public TCP access:
+Deploy on any VPS or host with a public IP:
 
 ```bash
-npm start -- --port 8080 --tls --auth admin:password123
+npm start -- --port 8080 --tls --auth admin:changeme
 ```
 
 | Flag | Description | Default |
 | :--- | :--- | :--- |
 | `--port` | TCP port to listen on | `8080` |
 | `--host` | IP or hostname to bind to | `0.0.0.0` |
-| `--tls` | Enable TLS (generates a self-signed certificate) | `false` |
-| `--auth` | Basic auth credentials, `user:pass` | none |
+| `--tls` | Enable TLS; a self-signed certificate is generated on first start | `false` |
+| `--auth` | Basic Auth credentials as `user:pass` | none |
 
 ### Client
 
@@ -89,7 +88,7 @@ node dist/client.js \
   --port 3000 \
   --subdomain dev-myapp \
   --keepalive \
-  --auth admin:password123
+  --auth admin:changeme
 ```
 
 | Flag | Description | Default |
@@ -98,13 +97,17 @@ node dist/client.js \
 | `--port` | Local port of the service to expose | required |
 | `--subdomain` | Subdomain to register on the server | required |
 | `--keepalive` | Send periodic ping frames to keep the connection open | `false` |
-| `--auth` | Basic auth credentials, `user:pass` | none |
+| `--auth` | Basic Auth credentials as `user:pass` | none |
+
+### Dashboard
+
+While the server is running, the dashboard is available at `http://localhost:4040` and shows live traffic, per-tunnel latency, and connection health.
 
 ## Notes
 
-- When TLS is enabled, the server generates a self-signed certificate on first start. For production, prefer a certificate issued by a trusted CA.
-- The client connects to the server over plain TCP by default; the `--tls` flag on the server side switches the transport to `wss://`.
-- Basic Authentication is applied at the server level, so all tunnels share the same credentials.
+- With `--tls`, the server generates a self-signed certificate on first start. For production, prefer a certificate issued by a trusted CA.
+- By default the client connects to the server over plain TCP. When the server runs with `--tls`, the transport switches to secure WebSockets (`wss://`).
+- Basic Authentication is enforced at the server level, so all tunnels share one set of credentials.
 
 ## Development
 
@@ -116,10 +119,11 @@ npm test
 npm run lint
 ```
 
-Pull requests are welcome. Please open an issue first for larger changes so we can discuss the approach.
+Pull requests are welcome. For larger changes, please open an issue first so we can discuss the approach.
 
 ## Changelog
 
+- **2026-09-30** — README polish: removed stray auto-generated text, tightened wording, and clarified usage examples.
 - **2026-09-29** — README cleanup: clarified flag tables, added client options, and documented TLS/auth behavior.
 - **Earlier** — Initial release with one-port multiplexing, subdomain routing, TLS, Basic Auth, and the dashboard.
 
